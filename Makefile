@@ -107,13 +107,15 @@ vendor:
 icons:
 	@echo converting icons with ImageMagick
 
-	@convert -resize 032x032 www-src/images/icon-144.png  www-src/images/icon-032.png
-	@convert -resize 057x057 www-src/images/icon-144.png  www-src/images/icon-057.png
-	@convert -resize 064x064 www-src/images/icon-144.png  www-src/images/icon-064.png
-	@convert -resize 072x072 www-src/images/icon-144.png  www-src/images/icon-072.png
-	@convert -resize 096x096 www-src/images/icon-144.png  www-src/images/icon-096.png
-	@convert -resize 114x114 www-src/images/icon-144.png  www-src/images/icon-114.png
-	@convert -resize 128x128 www-src/images/icon-144.png  www-src/images/icon-128.png
+	@convert -resize 032x032 www/images/icon-512.png www/images/icon-032.png
+	@convert -resize 057x057 www/images/icon-512.png www/images/icon-057.png
+	@convert -resize 064x064 www/images/icon-512.png www/images/icon-064.png
+	@convert -resize 072x072 www/images/icon-512.png www/images/icon-072.png
+	@convert -resize 096x096 www/images/icon-512.png www/images/icon-096.png
+	@convert -resize 114x114 www/images/icon-512.png www/images/icon-114.png
+	@convert -resize 128x128 www/images/icon-512.png www/images/icon-128.png
+	@convert -resize 144x144 www/images/icon-512.png www/images/icon-144.png
+	@convert -resize 256x256 www/images/icon-512.png www/images/icon-256.png
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
