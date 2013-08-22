@@ -1,0 +1,40 @@
+{
+  "name":              "us-weather",
+  "main":              "./lib/weather",
+  "bin":
+    {
+      "us-weather":    "./lib/us-weather.js"
+    },
+  "description":       "US Weather API via NOAA/NWS",
+  "also-see":          "http://graphical.weather.gov/xml/rest.php",
+  "author":            "pmuellr",
+  "version":           "0.1.0",
+  "tags":              [ "weather"],
+  "licenses":
+    [
+      {
+        "type":        "Apache License"
+      }
+    ],
+  "dependencies":
+    {
+      "express":          "3.2.x",
+      "htmlparser":       "1.7.x",
+      "lru-cache":        "2.3.x",
+      "soupselect":       "0.2.x",
+      "underscore":       "1.4.x"
+    },
+  "devDependencies":
+    {
+      "browserify":       "2.17.x",
+      "coffee-script":    "1.6.x",
+      "supervisor":       "0.5.x"
+    },
+  "homepage":          "https://github.com/pmuellr/us-weather",
+  "bugs":              "https://github.com/pmuellr/us-weather/issues",
+  "repository": {
+    "type":            "git",
+    "url":             "git://github.com/pmuellr/us-weather"
+  }
+}
+
