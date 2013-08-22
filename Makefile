@@ -40,24 +40,27 @@ serve:
 
 #-------------------------------------------------------------------------------
 build:
+	@rm   -rf tmp/modules
 	@mkdir -p tmp/modules
-	@mkdir -p tmp/modules/services   
-	@mkdir -p tmp/modules/controllers
+
+	@cd www-src/views; ../../$(COFFEE) ../../tools/views2module.coffee * > ../../tmp/modules/views.js
 
 	@-rm -rf  lib/*
 	@mkdir -p lib
 
 	@echo "compiling coffee files"
-	@$(COFFEEC) --output lib                     lib-src/*.coffee 
-	@$(COFFEEC) --output tmp/modules             www-src/modules/*.coffee 
-	@$(COFFEEC) --output tmp/modules/services    www-src/modules/services/*.coffee 
-#	@$(COFFEEC) --output tmp/modules/controllers www-src/modules/controllers/*.coffee 
+	@$(COFFEEC) --output lib                            lib-src/*.coffee 
+	@$(COFFEEC) --output tmp/modules                    www-src/modules/*.coffee 
+	@$(COFFEEC) --output tmp/modules/controllers        www-src/modules/controllers/*.coffee 
+	@$(COFFEEC) --output tmp/modules/directives         www-src/modules/directives/*.coffee 
+	@$(COFFEEC) --output tmp/modules/filters            www-src/modules/filters/*.coffee 
+	@$(COFFEEC) --output tmp/modules/services           www-src/modules/services/*.coffee 
 
 	@echo "browserifying"
 	@$(BROWSERIFY) \
 		--debug \
 		--outfile www/index.js \
-		tmp/scripts/main.js
+		tmp/modules/main.js
 
 	@$(COFFEE) tools/split-sourcemap-data-url.coffee www/index.js
 

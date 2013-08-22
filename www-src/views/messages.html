@@ -1,0 +1,15 @@
+<div ng-show="messages.length">
+    <button class="btn btn-primary" ng-click="clear()">clear</button>
+</div>
+
+<div ng-hide="messages.length" class="alert alert-info">
+    no messages
+</div>
+
+<p>
+
+<table class="table table-striped">
+    <tr ng-repeat="message in messages">
+        <td>{{message.date | LogTime}}
+        <td width="100%">{{message.text}}
+</table>

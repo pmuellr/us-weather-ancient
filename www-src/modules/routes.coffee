@@ -1,5 +1,7 @@
 # Licensed under the Apache License. See footer for details.
 
+views = require "./views"
+
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
 
@@ -12,20 +14,24 @@ module.exports = (mod) ->
                 redirectTo:  "/"
 
             .when "/", 
-                controller:  "MainController"
-                templateUrl: "main.html"
+                controller:  "HomeController"
+                template:    views["home.html"]
 
-            .when "/log", 
-                controller:  "LogController"
-                templateUrl: "log.html"
+            .when "/add", 
+                controller:  "AddController"
+                template:    views["add.html"]
+
+            .when "/messages", 
+                controller:  "MessagesController"
+                template:    views["messages.html"]
 
             .when "/settings", 
                 controller:  "SettingsController"
-                templateUrl: "settings.html"
+                template:    views["settings.html"]
 
-            .when "/apis", 
-                controller:  "ApisController"
-                templateUrl: "apis.html"
+            .when "/help", 
+                controller:  "HelpController"
+                template:    views["help.html"]
 
         return
 

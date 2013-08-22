@@ -11,7 +11,6 @@ weather = require "./us-weather"
 PROGRAM = "#{path.basename path.dirname __dirname} server"
 WWWDIR  = path.join __dirname, "../www"
 VENDOR  = path.join __dirname, "../vendor"
-SWAGGER = path.join __dirname, "../vendor", "swagger-ui"
 
 CACHE_GC_MINS     = 5
 CACHE_ENTRIES_MAX = 500
@@ -52,7 +51,6 @@ main = ->
 
     app.use            express.static(WWWDIR)
     app.use "/vendor", express.static(VENDOR)
-    app.use "/api-ui", express.static(SWAGGER)
 
     log "starting server at http://localhost:#{port}"
 

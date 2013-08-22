@@ -1,48 +1,26 @@
 # Licensed under the Apache License. See footer for details.
 
-path = require "path"
+utils = require "../utils"
 
-utils = exports
-
-#-------------------------------------------------------------------------------
-utils.dump = (text) ->
-    $log = $ "#log"
-    $log.text text
-    $log.show()
+coreName = utils.coreName __filename
 
 #-------------------------------------------------------------------------------
-utils.log = (text) ->
-    $log = $ "#log"
-    $log.text "#{$log.text()}\n#{text}"
-    $log.show()
+module.exports = (mod) ->
+    mod.controller coreName, BodyController
+
+    return
 
 #-------------------------------------------------------------------------------
-utils.coreName = (fileName) ->
-    fileName = path.basename fileName
+BodyController = ($scope, LogService) ->
 
-    return fileName.split(".")[0]
+    $(".navbar .nav-collapse a").click -> hideExpandedNavbar()
+    $(".navbar a.brand").click         -> hideExpandedNavbar()
 
-#-------------------------------------------------------------------------------
-watchWindowResizing = ->
-    timeout = null
-
-    #----------------------------------
-    fireResizingComplete = ->
-        $window = $(window)
-        event = new CustomEvent "window-resizing-complete", 
-            detail:
-                width:  $window.width()
-                height: $window.height()
-
-        window.dispatchEvent event
-
-    #----------------------------------
-    $(window).resize ->
-        clearTimeout(timeout) if timeout
-        timeout = setTimeout(fireResizingComplete, 500)
+    $scope.messages  = LogService.getMessages()
 
 #-------------------------------------------------------------------------------
-watchWindowResizing()
+hideExpandedNavbar = -> 
+    $(".nav-collapse").collapse("hide")
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

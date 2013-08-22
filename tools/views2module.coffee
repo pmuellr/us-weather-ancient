@@ -1,23 +1,44 @@
 # Licensed under the Apache License. See footer for details.
 
+fs   = require "fs"
+path = require "path"
+
+PROGRAM = path.basename(__filename)
+
+main = (iFileNames) ->
+
+    files = {}
+    
+    for iFileName in iFileNames
+        try
+            files[iFileName] = fs.readFileSync iFileName, "utf8"
+        catch e
+            return error "error reading '#{iFileName}: #{e}"
+
+    for fileName, contents of files
+        fileName = JSON.stringify fileName
+        contents = JSON.stringify contents
+
+        console.log "exports[#{fileName}] = #{contents};"
+
+    return
+
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
-
-    #---------------------------------------------------------------------------
-    mod.filter "logTime", ->
-        (date) -> 
-            hh = right "#{date.getHours()}",   2, 0
-            mm = right "#{date.getMinutes()}", 2, 0
-            ss = right "#{date.getSeconds()}", 2, 0
-            return "#{hh}:#{mm}:#{ss}"
-
-    return        
+error = (message) ->
+    log message
+    process.exit 1
 
 #-------------------------------------------------------------------------------
-right = (string, len, pad) ->
-    while string.length < len
-        string = "#{pad}#{string}"
-    return string
+exit = (message) ->
+    log message
+    process.exit 0
+
+#-------------------------------------------------------------------------------
+log = (message) ->
+    console.error "#{PROGRAM}: #{message}"
+
+#-------------------------------------------------------------------------------
+main process.argv.slice 2
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

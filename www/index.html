@@ -23,18 +23,39 @@
 </head>
 
 <!-- ======================================================================= -->
-<body>
+<body ng-controller="BodyController">
 
 <div class="container-fluid">
 
     <div class="navbar">
         <div class="navbar-inner">
-            <ul class="nav">
-                <li><img src="images/icon-032.png">
-                <li><a href="#/home">     Home     </a>
-                <li><a href="#/messages"> Messages </a>
-                <li><a href="#/help">     Help     </a>
-            </ul>
+            <div class="container">
+                <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </a>                
+
+                <a class="brand" href="#/home">
+                    <img src="images/icon-032.png">
+                    us-weather
+                </a>
+
+                <div class="nav-collapse collapse">
+                    <ul class="nav">
+                        <li>
+                        <li><a href="#/add">      Add      </a>
+                        <li><a href="#/settings"> Settings </a>
+                        <li>
+                            <a href="#/messages"> Messages
+                                <span ng-cloak ng-show="messages.length">
+                                    ({{messages.length}})
+                                </span>
+                            </a>
+                        <li><a href="#/help">     Help     </a>
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>    
 

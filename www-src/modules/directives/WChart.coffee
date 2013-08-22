@@ -1,10 +1,14 @@
 # Licensed under the Apache License. See footer for details.
 
+utils = require "../utils"
+
+coreName = utils.coreName __filename
+
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
 
     #----------------------------------------------------------------------------
-    mod.directive "wchart", ->
+    mod.directive coreName, ->
         restrict: "E"
         scope:
             location: "="

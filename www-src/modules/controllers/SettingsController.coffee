@@ -1,22 +1,20 @@
 # Licensed under the Apache License. See footer for details.
 
-main = exports
+utils = require "../utils"
 
-utils  = require "./utils"
+coreName = utils.coreName __filename
 
-main.mod = angular.module "app", []
+#-------------------------------------------------------------------------------
+module.exports = (mod) ->
+    mod.controller coreName, SettingsController
 
-require("./controllers/AddController")      main.mod
-require("./controllers/BodyController")     main.mod
-require("./controllers/HelpController")     main.mod
-require("./controllers/HomeController")     main.mod
-require("./controllers/MessagesController") main.mod
-require("./controllers/SettingsController") main.mod
-require("./directives/WChart")              main.mod
-require("./filters/LogTime")                main.mod
-require("./services/LogService")            main.mod
-require("./services/LocationsService")      main.mod
-require("./routes")                         main.mod
+    return
+
+#-------------------------------------------------------------------------------
+SettingsController = (@$scope, @LogService) ->
+    @LogService.log "controller #{coreName} created"
+
+    return
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

@@ -1,25 +1,49 @@
 # Licensed under the Apache License. See footer for details.
 
+utils = require "../utils"
+
+coreName = utils.coreName __filename
+
 #-------------------------------------------------------------------------------
-module.exports = class Log
+module.exports = (mod) ->
+    mod.service coreName, LogService
+
+#-------------------------------------------------------------------------------
+class LogService
 
     #---------------------------------------------------------------------------
-    inject: (@$log) ->
-        @messages = []
-
-        @log      "new log service created"
+    constructor: () ->
+        @_verbose  = false
+        @_messages = []
 
     #---------------------------------------------------------------------------
-    log: (message) ->
+    getMessages: () ->
+        return @_messages
+
+    #---------------------------------------------------------------------------
+    verbose: (value) ->
+        return @_verbose if !value? 
+
+        @_verbose = !!value
+        return @_verbose
+
+    #---------------------------------------------------------------------------
+    log: (text) ->
         date = new Date
-        @messages.push {date, message}
+        @_messages.push {date, text}
 
-        @$log.log message
+        return
+
+    #---------------------------------------------------------------------------
+    vlog: (text) ->
+        return unless @_verbose
+
+        log text
         return
 
     #---------------------------------------------------------------------------
     clear: ->
-        @messages.splice 0, @messages.length
+        @_messages.splice 0, @_messages.length
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

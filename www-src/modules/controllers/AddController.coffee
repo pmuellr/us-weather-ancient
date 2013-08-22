@@ -1,44 +1,20 @@
 # Licensed under the Apache License. See footer for details.
 
-LogService       = require "./services/LogService"
-LocationsService = require "./services/LocationsService"
+utils = require "../utils"
+
+coreName = utils.coreName __filename
 
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
-    addServices mod, {
-        LogService    
-        LocationsService
-    }
-
-#-------------------------------------------------------------------------------
-addServices = (mod, services) ->
-    injector = angular.injector()
-    for name, fn of services
-        factory = buildFactory injector, fn
-
-        mod.factory name, factory
+    mod.controller coreName, AddController
 
     return
 
 #-------------------------------------------------------------------------------
-buildFactory = (injector, fn) ->
-    injectMethod = fn::inject
+AddController = (@$scope, @LogService) ->
+    @LogService.log "controller #{coreName} created"
 
-    injectMethod = null if typeof injectMethod isnt "function"
-
-    if injectMethod
-        injected = injector.annotate injectMethod
-    else
-        injected = []
-
-    fn.factory = ->
-        inst = new fn
-        injectMethod.apply inst, arguments if injectMethod
-        return inst
-
-    fn.factory.$inject = injected
-    return fn.factory
-
+    return
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
