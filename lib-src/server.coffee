@@ -157,20 +157,20 @@ logDate = () ->
     sec = date.getSeconds()
     ms  = date.getMilliseconds()
 
-    mon = alignRight0 "#{mon}" , 2
-    day = alignRight0 "#{day}" , 2
-    hr  = alignRight0 "#{hr }" , 2
-    min = alignRight0 "#{min}" , 2
-    sec = alignRight0 "#{sec}" , 2
-    ms  = alignRight0 "#{ms }" , 4
+    mon = alignRight "#{mon}" , 2, 0
+    day = alignRight "#{day}" , 2, 0
+    hr  = alignRight "#{hr }" , 2, 0
+    min = alignRight "#{min}" , 2, 0
+    sec = alignRight "#{sec}" , 2, 0
+    ms  = alignRight "#{ms }" , 4, 0
 
     result = "#{mon}-#{day} #{hr}:#{min}:#{sec}.#{ms}"
     return result
 
 #-------------------------------------------------------------------------------
-alignRight0 = (string, length) ->
+alignRight = (string, length, pad) ->
     while string.length < length
-        string = "0#{string}"
+        string = "#{pad}#{string}"
 
     string
 

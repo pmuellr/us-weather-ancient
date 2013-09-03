@@ -36,18 +36,40 @@ main = (args) ->
         require "./server"
 
     else if args[0] is "locations"
-        weather.getLocations (err, data) -> console.log JL data
+        weather.getLocations (err, data) -> 
+            if err
+                err.weatherURL = err.weatherURL || "???"
+                console.log "error accessing url #{err.weatherURL}: #{err}"
+                if err.stack?
+                    console.log "stack:\n#{err.stack}"
+
+            console.log JL data if data?
 
     else if args.length is 1
         zip = parseInt args[0], 10
         help() if isNaN zip
-        weather.getWeatherByZip zip, (err, data) ->  console.log JL data
+        weather.getWeatherByZip zip, (err, data) ->
+            if err
+                err.weatherURL = err.weatherURL || "???"
+                console.log "error accessing url #{err.weatherURL}: #{err}"
+                if err.stack?
+                    console.log "stack:\n#{err.stack}"
+
+            console.log JL data if data?
 
     else if args.length is 2
         lat = parseFloat args[0]
         lon = parseFloat args[1]
-        help() if isNaN lat or isNan lon
-        weather.getWeatherByGeo lat, lon, (err, data) ->  console.log JL data
+        help() if isNaN lat or isNaN lon
+        weather.getWeatherByGeo lat, lon, (err, data) ->  
+            if err
+                err.weatherURL = err.weatherURL || "???"
+                console.log "error accessing url #{err.weatherURL}: #{err}"
+                if err.stack?
+                    console.log "stack:\n#{err.stack}"
+
+            console.log JL data if data?
+
     else
         help()
 
@@ -70,11 +92,14 @@ weather.getLocations = (callback) ->
     url = "#{URLprefix}?listCitiesLevel=1234"
 
     getHttp url, (err, body) ->
-        return callback err if err?
+        if err?
+            err.weatherURL = url
+            return callback err 
 
         try 
             handle_getLocations body, callback
         catch err
+            err.weatherURL = url
             callback err
 
     return
@@ -92,15 +117,17 @@ weather.getWeatherByZip = (zipcode, callback) ->
 
     # console.log url
     getHttp url, (err, body) ->
-        return callback err if err?
+        if err?
+            err.weatherURL = url
+            return callback err 
 
         try
             handle_getWeather body, callback
         catch err
+            err.weatherURL = url
             callback err
 
     return
-
 
 #-------------------------------------------------------------------------------
 weather.getWeatherByGeo = (lat, lon, callback) ->
@@ -120,11 +147,14 @@ weather.getWeatherByGeo = (lat, lon, callback) ->
 
     # console.log url
     getHttp url, (err, body) ->
-        return callback err if err?
+        if err?
+            err.weatherURL = url
+            return callback err 
 
         try
             handle_getWeather body, callback
         catch err
+            err.weatherURL = url
             callback err
 
     return
@@ -169,7 +199,7 @@ handle_getWeather = (xml, callback) ->
 
     point = select(dom, "data location point")[0]
 
-    result.lat  = parseFloat point.attribs.latitude
+    result.lat = parseFloat point.attribs.latitude
     result.lon = parseFloat point.attribs.longitude
 
     timeLayouts = getTimeLayouts dom
@@ -191,6 +221,7 @@ handle_getWeather = (xml, callback) ->
 
     for [selector, parser] in dataSets
         {name, values} = getParameterData dom, timeLayouts, selector, parser
+        continue if !name?
 
         name = DataNameMap[name]
         result.data[name] = values
@@ -204,10 +235,17 @@ getParameterData = (dom, timeLayouts, elementName, parser) ->
     # console.log "getParameterData #{elementName}"
 
     elements = select dom, "data parameters #{elementName}"
+    return {} if !elements[0]?
+
     layout   = elements[0].attribs["time-layout"]
+    return {} if !layout?
+
     layout   = timeLayouts[layout]
+    return {} if !layout?
+
     name     = getText select elements, "name"
     values   = select elements, "value"
+    return {} if !name? or !values?
 
     # console.log name, layout
 
@@ -334,14 +372,11 @@ normalizeElements = (nodes) ->
 
 #-------------------------------------------------------------------------------
 getHttp = (url, callback) ->
-    url      = URL.parse(url)
-    request  = http.request(url)
+    urlParsed = URL.parse(url)
+    request   = http.request(urlParsed)
 
     request.on "response", (response) ->
         body = ""
-
-        if response.statusCode isnt 200
-            callback Error "http status: #{response.statusCode}"
 
         response.setEncoding "utf8"
 
@@ -349,13 +384,20 @@ getHttp = (url, callback) ->
             body += chunk
 
         response.on "end", ->
+            if response.statusCode isnt 200
+                err = Error "http status: #{response.statusCode}"
+                err.weatherURL = url
+                return callback err, body
+
             callback null, body
 
         response.on "error", (err) ->
-            callback err
+            err.weatherURL = url
+            return callback err, body
 
     request.on "error", (err) ->
-        callback err
+        err.weatherURL = url
+        return callback err
 
     request.end()
 
