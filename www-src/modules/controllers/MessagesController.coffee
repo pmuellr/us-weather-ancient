@@ -11,12 +11,14 @@ module.exports = (mod) ->
     return
 
 #-------------------------------------------------------------------------------
-MessagesController = (@$scope, @LogService) ->
-    @LogService.log "controller #{coreName} created"
+MessagesController = ($scope, LogService) ->
+    LogService.log "controller #{coreName} created"
 
-    $scope.messages = @LogService.getMessages()
+    $scope.hideExpandedNavbar()
 
-    $scope.clear = => @LogService.clear()
+    $scope.messages = LogService.getMessages()
+
+    $scope.clear = -> LogService.clear()
 
     return
 

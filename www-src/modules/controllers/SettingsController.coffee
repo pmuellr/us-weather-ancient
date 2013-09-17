@@ -11,8 +11,10 @@ module.exports = (mod) ->
     return
 
 #-------------------------------------------------------------------------------
-SettingsController = (@$scope, @LogService) ->
-    @LogService.log "controller #{coreName} created"
+SettingsController = ($scope, LogService) ->
+    LogService.log "controller #{coreName} created"
+
+    $scope.hideExpandedNavbar()
 
     return
 

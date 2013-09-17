@@ -11,8 +11,18 @@ module.exports = (mod) ->
     return
 
 #-------------------------------------------------------------------------------
-AddController = (@$scope, @LogService) ->
-    @LogService.log "controller #{coreName} created"
+AddController = ($scope, LogService, GMapService) ->
+    LogService.log "controller #{coreName} created"
+
+    $scope.hideExpandedNavbar()
+
+    $scope.gmapReady     = false
+    $scope.gmapLoadError = ""
+
+    ready = GMapService.ready()
+
+    ready.then  (service) -> $scope.gmapReady     = true
+    ready.catch (err)     -> $scope.gmapLoadError = err.message
 
     return
 

@@ -1,87 +1,102 @@
-<!DOCTYPE html>
+# Licensed under the Apache License. See footer for details.
 
-<!-- Licensed under the Apache License. See footer for details. -->
+_ = require "underscore"
 
-<html ng-app="app" lang="en">
+utils   = require "../utils"
+weather = require "../us-weather"
 
-<!-- ======================================================================= -->
-<head>
-<title>us weather</title>
+coreName = utils.coreName __filename
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="shortcut icon" href="images/icon-032.png" />
+#-------------------------------------------------------------------------------
+module.exports = (mod) ->
+    mod.service coreName, GMapService
 
-<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css" />
-<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap-theme.min.css" />
-<!--[if lt IE 9]>
-    <script src="vendor/bootstrap/js/html5shiv.js"></script>
-    <script src="vendor/bootstrap/js/respond.min.js"></script>
-<![endif]-->
 
-<link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
-<!--[if IE 7]>
-    <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome-ie7.min.css">
-<![endif]-->
+#-------------------------------------------------------------------------------
+class GMapService
 
-<link rel="stylesheet" href="index.css" />
-</head>
+    #---------------------------------------------------------------------------
+    constructor: (@$window, @$q, @LogService) ->
+        @ready         = false
+        @loadError     = undefined
+        @loadDeferreds = []
 
-<!-- ======================================================================= -->
-<body ng-controller="BodyController">
+        GoogleMapsAPILoad @
 
-    <nav class="navbar navbar-default" role="navigation">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#/home">us-weather</a>
-        </div>    
+    #---------------------------------------------------------------------------
+    load: () ->
+        deferred = @$q.defer()
 
-        <div class="collapse navbar-collapse">
-            <ul class="nav navbar-nav navbar-right">
-                <li><a href="#/add">Add</a></li>
-                <li><a href="#/settings">Settings</a></li>
-                <li><a href="#/messages">Messages</a></li>
-                <li><a href="#/help">Help</a></li>
-            </ul>
-        </div>
-    </nav>
+        if @ready 
+            deferred.resolve @
+            return
 
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-                <div ng-view></div>
-            </div>
-        </div>
-    </div>
+        @loadDeferreds.push deferred
 
-</body>
+        return deferred.promise
 
-<!-- ======================================================================= -->
-<script src="vendor/jquery.min.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-<script src="vendor/angular.min.js"></script>
-<script src="vendor/angular-route.min.js"></script>
-<script src="Google-Maps-API-key.js"></script>
-<script src="index.js"></script>
 
-<!--
-<script type="text/javascript">
-var geocoder
-var infoWindow
+    #---------------------------------------------------------------------------
+    init: () ->
+        @ready = true
+
+        google.maps.visualRefresh = true
+
+        @geocoder    = new google.maps.Geocoder()
+        @infoWindow  = new google.maps.InfoWindow {content: ""}
+
+#-------------------------------------------------------------------------------
+GoogleMapsAPILoad = (service) ->
+    service.ready     = true
+    service.loadError = undefined
+
+    script = document.createElement("script")
+    script.type = "text/javascript"
+    script.src  = [
+        "https://maps.googleapis.com/maps/api/js?key=#{GoogleMapsAPIKey}"
+        "sensor=false"
+        "callback=GoogleMapsAPILoaded"
+    ].join("&")
+
+    window.GoogleMapsAPILoaded = ->
+        GoogleMapsAPILoaded_ service
+
+    setTimeout(
+        -> GoogleMapsAPILoadTimeout service, 
+        10 * 1000
+    )
+
+    document.body.appendChild script
+
+#-------------------------------------------------------------------------------
+GoogleMapsAPILoadTimeout = (service) ->
+    return if service.ready
+
+    service.loadError = "timeout waiting for Google Maps API to load"
+
+    while service.loadDeferreds.length
+        deferred = service.loadDeferreds.shift()
+        deferred.reject Error service.loadError
+
+    return
+
+#-------------------------------------------------------------------------------
+GoogleMapsAPILoaded_ = (service) ->
+    return if service.ready
+
+    service.ready = true
+
+    while service.loadDeferreds.length
+        deferred = service.loadDeferreds.shift()
+        deferred.resolve service
+
+###
 var map
 var marker
 var locationEntry
 
 //------------------------------------------------------------------------------
 function InitializeMap() {
-    google.maps.visualRefresh = true
-
-    geocoder    = new google.maps.Geocoder()
-    infoWindow  = new google.maps.InfoWindow({content: "hello!"})
 
     var location   = new google.maps.LatLng(47.2, -121.3)
     var mapElement = $(".map-canvas")[0]
@@ -159,13 +174,12 @@ function getLocationNameResult(results, status) {
         console.log("picked: " + locName)
     })
 }
-</script>
--->
 
-</html>
+###
 
-<!-- 
-#===============================================================================
+
+
+#-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -179,5 +193,4 @@ function getLocationNameResult(results, status) {
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#===============================================================================
--->
+#-------------------------------------------------------------------------------

@@ -18,15 +18,15 @@
     ],
   "dependencies":
     {
-      "express":          "3.2.x",
+      "express":          "3.4.x",
       "htmlparser":       "1.7.x",
       "lru-cache":        "2.3.x",
       "soupselect":       "0.2.x",
-      "underscore":       "1.4.x"
+      "underscore":       "1.5.x"
     },
   "devDependencies":
     {
-      "browserify":       "2.17.x",
+      "browserify":       "2.31.x",
       "coffee-script":    "1.6.x",
       "supervisor":       "0.5.x"
     },

@@ -1,22 +1,10 @@
 # Licensed under the Apache License. See footer for details.
 
-main = exports
+tmp
 
-utils  = require "./utils"
+bower_components
+node_modules
 
-main.mod = angular.module "app", ["ngRoute"]
-
-require("./controllers/AddController")      main.mod
-require("./controllers/BodyController")     main.mod
-require("./controllers/HelpController")     main.mod
-require("./controllers/HomeController")     main.mod
-require("./controllers/MessagesController") main.mod
-require("./controllers/SettingsController") main.mod
-require("./directives/WChart")              main.mod
-require("./filters/LogTime")                main.mod
-require("./services/LogService")            main.mod
-require("./services/LocationsService")      main.mod
-require("./routes")                         main.mod
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

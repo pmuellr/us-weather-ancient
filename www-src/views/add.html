@@ -1,1 +1,11 @@
-in add.html
+<div ng-hide="gmapReady" class="alert alert-info">
+    <div ng-hide="gmapLoadError">
+        loading Google Maps
+    </div>
+</div>
+
+<div ng-show="gmapLoadError" class="alert alert-error">
+    {{gmapLoadError}}
+</div>
+
+<div class="map-canvas"></div>

@@ -13,14 +13,11 @@ module.exports = (mod) ->
 #-------------------------------------------------------------------------------
 BodyController = ($scope, LogService) ->
 
-    $(".navbar .nav-collapse a").click -> hideExpandedNavbar()
-    $(".navbar a.brand").click         -> hideExpandedNavbar()
+    $scope.hideExpandedNavbar = ->
+        $(".navbar-collapse").collapse("hide")
+
 
     $scope.messages  = LogService.getMessages()
-
-#-------------------------------------------------------------------------------
-hideExpandedNavbar = -> 
-    $(".nav-collapse").collapse("hide")
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

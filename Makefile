@@ -71,40 +71,55 @@ test: build
 	node lib/weather.js 35.78, -78.8
 
 #-------------------------------------------------------------------------------
-vendor: 
+vendor: npm-modules bower
+
+#-------------------------------------------------------------------------------
+npm-modules: 
 	@rm -rf node_modules
 	@npm install
 
+#-------------------------------------------------------------------------------
+bower:
 	@-rm -rf  bower_components
 	@-rm -rf  vendor/*
 	@mkdir -p vendor
 
-	@bower install bootstrap\#2.3.x
-	@bower install angular\#1.0.x
+	@bower install angular\#1.2.x
+	@bower install angular-route\#1.2.x
+	@bower install bootstrap\#3.0.x
 	@bower install font-awesome\#3.2.x
 
-	@cp bower_components/jquery/jquery.js    vendor
-	@cp bower_components/angular/angular.js  vendor
+	@cp bower_components/jquery/jquery.js      vendor
+	@cp bower_components/jquery/jquery.min.js  vendor
+	@cp bower_components/jquery/jquery.min.map vendor
+
+	@cp bower_components/angular/angular.js         vendor
+	@cp bower_components/angular/angular.min.js     vendor
+	@cp bower_components/angular/angular.min.js.map vendor
+
+	@cp bower_components/angular-route/angular-route.js         vendor
+	@cp bower_components/angular-route/angular-route.min.js     vendor
+	@cp bower_components/angular-route/angular-route.min.js.map vendor
 
 	@mkdir vendor/bootstrap
 	@mkdir vendor/bootstrap/css
-	@mkdir vendor/bootstrap/img
+	@mkdir vendor/bootstrap/fonts
 	@mkdir vendor/bootstrap/js
 
-	@cp bower_components/bootstrap/docs/assets/css/bootstrap*.css   vendor/bootstrap/css
-	@cp bower_components/bootstrap/docs/assets/img/glyphicons-*.png vendor/bootstrap/img
-	@cp bower_components/bootstrap/docs/assets/js/bootstrap.js      vendor/bootstrap/js
+	@cp bower_components/bootstrap/dist/css/*               vendor/bootstrap/css
+	@cp bower_components/bootstrap/dist/fonts/*             vendor/bootstrap/fonts
+	@cp bower_components/bootstrap/dist/js/*                vendor/bootstrap/js
+	@cp bower_components/bootstrap/assets/js/html5shiv.js   vendor/bootstrap/js
+	@cp bower_components/bootstrap/assets/js/respond.min.js vendor/bootstrap/js
 
 	@mkdir vendor/font-awesome
 	@mkdir vendor/font-awesome/css
 	@mkdir vendor/font-awesome/font
 
-	@cp bower_components/font-awesome/css/font-awesome-ie7.css vendor/font-awesome/css
-	@cp bower_components/font-awesome/css/font-awesome.css     vendor/font-awesome/css
-	@cp bower_components/font-awesome/font/*                   vendor/font-awesome/font
+	@cp bower_components/font-awesome/css/*  vendor/font-awesome/css
+	@cp bower_components/font-awesome/font/* vendor/font-awesome/font
 
-	@rm -rf bower_components
-
+#	@rm -rf bower_components
 
 #-------------------------------------------------------------------------------
 icons:
