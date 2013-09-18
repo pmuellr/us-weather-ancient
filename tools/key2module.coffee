@@ -1,31 +1,40 @@
 # Licensed under the Apache License. See footer for details.
 
-utils = require "../utils"
+fs   = require "fs"
+path = require "path"
 
-coreName = utils.coreName __filename
+PROGRAM = path.basename(__filename)
 
-#-------------------------------------------------------------------------------
-module.exports = (mod) ->
+main = (iFile) ->
 
-    #$ ->
-    #    $(".navbar-collapse").collapse()
+    error "expecting arguments keyFile" if !iFile?
 
-    mod.controller coreName, BodyController
+    try
+        key = fs.readFileSync iFile, "utf8"
+        key = key.trim()
+    catch e
+        return error "error reading '#{iFile}: #{e}"
+
+    console.log "exports.key = '#{key}'"
 
     return
 
 #-------------------------------------------------------------------------------
-BodyController = ($scope, LogService) ->
+error = (message) ->
+    log message
+    process.exit 1
 
-    domReady = false
+#-------------------------------------------------------------------------------
+exit = (message) ->
+    log message
+    process.exit 0
 
-    $ ->
-        domReady = true
+#-------------------------------------------------------------------------------
+log = (message) ->
+    console.error "#{PROGRAM}: #{message}"
 
-    $scope.hideExpandedNavbar = ->
-        $(".navbar-collapse").collapse("hide") if domReady
-
-    $scope.messages  = LogService.getMessages()
+#-------------------------------------------------------------------------------
+main.apply null, process.argv.slice 2
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

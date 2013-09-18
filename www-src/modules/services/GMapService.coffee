@@ -5,6 +5,8 @@ _ = require "underscore"
 utils   = require "../utils"
 weather = require "../us-weather"
 
+Google_Maps_API_key = require "../Google-Maps-API-key"
+
 coreName = utils.coreName __filename
 
 #-------------------------------------------------------------------------------

@@ -2,9 +2,10 @@
 
 .PHONY: vendor
 
-BROWSERIFY = node_modules/.bin/browserify
-COFFEE     = node_modules/.bin/coffee
-COFFEEC    = $(COFFEE) --bare --compile
+BROWSERIFY  = node_modules/.bin/browserify
+COFFEE      = node_modules/.bin/coffee
+COFFEEC     = $(COFFEE) --bare --compile
+MODULES_DIR = m
 
 #-------------------------------------------------------------------------------
 help:
@@ -40,27 +41,29 @@ serve:
 
 #-------------------------------------------------------------------------------
 build:
-	@rm   -rf tmp/modules
-	@mkdir -p tmp/modules
+	@rm   -rf $(MODULES_DIR)
+	@mkdir -p $(MODULES_DIR)
 
-	@cd www-src/views; ../../$(COFFEE) ../../tools/views2module.coffee * > ../../tmp/modules/views.js
+	@cd www-src/views; ../../$(COFFEE) ../../tools/views2module.coffee * > ../../$(MODULES_DIR)/views.js
 
 	@-rm -rf  lib/*
 	@mkdir -p lib
 
 	@echo "compiling coffee files"
 	@$(COFFEEC) --output lib                            lib-src/*.coffee 
-	@$(COFFEEC) --output tmp/modules                    www-src/modules/*.coffee 
-	@$(COFFEEC) --output tmp/modules/controllers        www-src/modules/controllers/*.coffee 
-	@$(COFFEEC) --output tmp/modules/directives         www-src/modules/directives/*.coffee 
-	@$(COFFEEC) --output tmp/modules/filters            www-src/modules/filters/*.coffee 
-	@$(COFFEEC) --output tmp/modules/services           www-src/modules/services/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)                    www-src/modules/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)/controllers        www-src/modules/controllers/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)/directives         www-src/modules/directives/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)/filters            www-src/modules/filters/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)/services           www-src/modules/services/*.coffee 
+
+	@$(COFFEE) tools/key2module.coffee Google-Maps-API-key.txt > $(MODULES_DIR)/Google-Maps-API-key.js
 
 	@echo "browserifying"
 	@$(BROWSERIFY) \
 		--debug \
 		--outfile www/index.js \
-		tmp/modules/main.js
+		$(MODULES_DIR)/main.js
 
 	@$(COFFEE) tools/split-sourcemap-data-url.coffee www/index.js
 

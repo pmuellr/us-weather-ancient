@@ -1,4 +1,0 @@
-// insert your Google Maps API Key here, and save the
-// file as Google-Maps-API-key.js
-
-GoogleMapsAPIKey = ""

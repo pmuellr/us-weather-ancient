@@ -1,10 +1,16 @@
 # Licensed under the Apache License. See footer for details.
 
+Google-Maps-API-key.txt
+
 tmp
+m
 
 bower_components
 node_modules
 vendor
+
+www/index.js
+www/index.js.map
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
