@@ -1,22 +1,33 @@
 # Licensed under the Apache License. See footer for details.
 
-main = exports
-
 utils  = require "./utils"
 
-main.mod = angular.module "app", ["ngRoute"]
+mod = null
 
-require("./controllers/AddController")      main.mod
-require("./controllers/BodyController")     main.mod
-require("./controllers/HelpController")     main.mod
-require("./controllers/HomeController")     main.mod
-require("./controllers/MessagesController") main.mod
-require("./controllers/SettingsController") main.mod
-require("./directives/WChart")              main.mod
-require("./filters/LogTime")                main.mod
-require("./services/LogService")            main.mod
-require("./services/LocationsService")      main.mod
-require("./routes")                         main.mod
+#-------------------------------------------------------------------------------
+main = ->
+    mod = angular.module "app", ["ngRoute"]
+
+    register require "./controllers/Add"
+    register require "./controllers/Body"
+    register require "./controllers/Help"
+    register require "./controllers/Home"
+    register require "./controllers/Messages"
+    register require "./controllers/Settings"
+    register require "./directives/WChart"
+    register require "./filters/LogTime"
+    register require "./services/GMap"
+    register require "./services/Logger"
+    register require "./services/Locations"
+    
+    register require "./routes"
+
+#-------------------------------------------------------------------------------
+register = (fn) ->
+    fn mod
+
+#-------------------------------------------------------------------------------
+main()
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

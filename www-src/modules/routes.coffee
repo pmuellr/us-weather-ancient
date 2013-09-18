@@ -5,33 +5,25 @@ views = require "./views"
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
 
+    url_html = (name) -> ["/#{name}", "#{name}.html"]
+
+    routes = 
+        Home:       ["/",    "home.html"]
+        Add:        url_html "add"
+        Messages:   url_html "messages"
+        Settings:   url_html "settings"
+        Help:       url_html "help"
+
     #---------------------------------------------------------------------------
     mod.config ($routeProvider) ->
 
-        $routeProvider
+        $routeProvider.otherwise 
+            redirectTo:  "/"
 
-            .otherwise 
-                redirectTo:  "/"
-
-            .when "/", 
-                controller:  "HomeController"
-                template:    views["home.html"]
-
-            .when "/add", 
-                controller:  "AddController"
-                template:    views["add.html"]
-
-            .when "/messages", 
-                controller:  "MessagesController"
-                template:    views["messages.html"]
-
-            .when "/settings", 
-                controller:  "SettingsController"
-                template:    views["settings.html"]
-
-            .when "/help", 
-                controller:  "HelpController"
-                template:    views["help.html"]
+        for controller, [url, html] of routes
+            $routeProvider.when url, 
+                controller:  controller
+                template:    views[html]
 
         return
 

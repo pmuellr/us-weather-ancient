@@ -18,6 +18,7 @@
     ],
   "dependencies":
     {
+      "connect":          "2.9.x",
       "express":          "3.4.x",
       "htmlparser":       "1.7.x",
       "lru-cache":        "2.3.x",

@@ -6,10 +6,10 @@ coreName = utils.coreName __filename
 
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
-    mod.service coreName, LogService
+    mod.service coreName, Logger
 
 #-------------------------------------------------------------------------------
-class LogService
+class Logger
 
     #---------------------------------------------------------------------------
     constructor: () ->

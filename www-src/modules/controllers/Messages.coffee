@@ -6,15 +6,19 @@ coreName = utils.coreName __filename
 
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
-    mod.controller coreName, SettingsController
+    mod.controller coreName, MessagesController
 
     return
 
 #-------------------------------------------------------------------------------
-SettingsController = ($scope, LogService) ->
-    LogService.log "controller #{coreName} created"
+MessagesController = ($scope, Logger) ->
+    Logger.log "controller #{coreName} created"
 
     $scope.hideExpandedNavbar()
+
+    $scope.messages = Logger.getMessages()
+
+    $scope.clear = -> Logger.clear()
 
     return
 

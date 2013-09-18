@@ -4,6 +4,7 @@ http = require "http"
 path = require "path"
 
 express  = require "express"
+connect  = require "connect"
 lruCache = require "lru-cache"
 
 weather = require "./us-weather"
@@ -27,7 +28,7 @@ main = ->
     port = process.env.VCAP_APP_PORT or process.env.PORT or "3000"
     port = parseInt port, 10
 
-    favIcon = path.join WWWDIR, "images/icon-032.png"
+    favIcon = path.join WWWDIR, "images/icon-0032.png"
 
     app = express()
 
@@ -41,15 +42,15 @@ main = ->
     # app.use express.json(strict: false)
     # app.use express.urlencoded()
 
-    app.use CORSify
-
-    app.get "/api/v1/weather-locations.json",        logRequest, getLocations
-    app.get "/api/v1/weather-by-geo/:lat,:lon.json", logRequest, getWeatherByGeo
-    app.get "/api/v1/weather-by-zip/:zip.json",      logRequest, getWeatherByZip
+    app.get "/api/v1/weather-locations.json",        CORSify, logRequest, getLocations
+    app.get "/api/v1/weather-by-geo/:lat,:lon.json", CORSify, logRequest, getWeatherByGeo
+    app.get "/api/v1/weather-by-zip/:zip.json",      CORSify, logRequest, getWeatherByZip
 
     app.use express.errorHandler(dumpExceptions: true)
 
-    app.use            express.static(WWWDIR)
+    app.use connect.compress()
+
+    app.use "/",       express.static(WWWDIR)
     app.use "/vendor", express.static(VENDOR)
 
     log "starting server at http://localhost:#{port}"

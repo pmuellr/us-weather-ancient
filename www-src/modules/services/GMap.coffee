@@ -18,7 +18,7 @@ module.exports = (mod) ->
 class GMapService
 
     #---------------------------------------------------------------------------
-    constructor: (@$window, @$q, @LogService) ->
+    constructor: (@$window, @$q, @Logger) ->
         @ready         = false
         @loadError     = undefined
         @loadDeferreds = []

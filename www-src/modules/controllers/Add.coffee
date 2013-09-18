@@ -6,15 +6,23 @@ coreName = utils.coreName __filename
 
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
-    mod.controller coreName, HelpController
+    mod.controller coreName, AddController
 
     return
 
 #-------------------------------------------------------------------------------
-HelpController = ($scope, LogService) ->
-    LogService.log "controller #{coreName} created"
+AddController = ($scope, Logger, GMap) ->
+    Logger.log "controller #{coreName} created"
 
     $scope.hideExpandedNavbar()
+
+    $scope.gmapReady     = false
+    $scope.gmapLoadError = ""
+
+    ready = GMap.ready()
+
+    ready.then  (service) -> $scope.gmapReady     = true
+    ready.catch (err)     -> $scope.gmapLoadError = err.message
 
     return
 

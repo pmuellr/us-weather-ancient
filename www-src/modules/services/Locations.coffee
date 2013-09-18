@@ -15,7 +15,7 @@ module.exports = (mod) ->
 class LocationsService
 
     #---------------------------------------------------------------------------
-    constructor: (@$window, @LogService) ->
+    constructor: (@$window, @Logger) ->
 
     #---------------------------------------------------------------------------
     save: ->
@@ -45,9 +45,9 @@ class Locations
     ]
 
     #---------------------------------------------------------------------------
-    inject: (@LogService) ->
+    inject: (@Logger) ->
 
-        @LogService.log "#{@constructor.name} created"
+        @Logger.log "#{@constructor.name} created"
 
         @_load()
 
@@ -132,10 +132,10 @@ class Locations
 
         weather.getWeatherByGeo location.lat, location.lon, (err, data) =>
             if err
-                @LogService.log "error reading data for #{location.name}: #{err}"
+                @Logger.log "error reading data for #{location.name}: #{err}"
                 return
 
-            @LogService.log "retrieved weather data for #{location.name}"
+            @Logger.log "retrieved weather data for #{location.name}"
             location.data = data
 
             @refreshMinMax()

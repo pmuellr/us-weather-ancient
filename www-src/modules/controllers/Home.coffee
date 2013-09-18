@@ -6,26 +6,17 @@ coreName = utils.coreName __filename
 
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
-
-    #$ ->
-    #    $(".navbar-collapse").collapse()
-
-    mod.controller coreName, BodyController
+    mod.controller coreName, HomeController
 
     return
 
 #-------------------------------------------------------------------------------
-BodyController = ($scope, LogService) ->
+HomeController = ($scope, Logger) ->
+    Logger.log "controller #{coreName} created"
 
-    domReady = false
+    $scope.hideExpandedNavbar()
 
-    $ ->
-        domReady = true
-
-    $scope.hideExpandedNavbar = ->
-        $(".navbar-collapse").collapse("hide") if domReady
-
-    $scope.messages  = LogService.getMessages()
+    return
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
