@@ -3,12 +3,13 @@
 Google-Maps-API-key.txt
 
 tmp
-m
 
 bower_components
 node_modules
-vendor
+
+lib
 www
+vendor
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

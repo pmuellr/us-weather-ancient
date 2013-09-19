@@ -16,7 +16,7 @@ help:
 	@echo "   vendor        - get vendor files"
 	@echo "   help          - print this help"
 	@echo ""
-	@echo "You will need to run 'make vendor' before duing anything useful."
+	@echo "You will need to run 'make build' before running the app."
 
 #-------------------------------------------------------------------------------
 watch:
@@ -43,12 +43,15 @@ serve:
 build: make-writeable _build make-read-only
 
 #-------------------------------------------------------------------------------
-_build:
+_build: vendor
+
+	@echo "building server code in lib"
 	@mkdir -p lib
 	@-rm -rf  lib/*
 
 	@$(COFFEEC) --output lib lib-src/*.coffee 
 
+	@echo "building client code in www"
 	@mkdir -p www
 	@rm   -rf www/*
 
@@ -64,7 +67,6 @@ _build:
 
 	@$(COFFEE) tools/key2module.coffee Google-Maps-API-key.txt > $(MODULES_DIR)/Google-Maps-API-key.js
 
-	@echo "browserifying"
 	@$(BROWSERIFY) \
 		--debug \
 		--outfile www/index.js \
@@ -80,6 +82,10 @@ _build:
 	@cp -R vendor/*         www/vendor
 
 #-------------------------------------------------------------------------------
+clean: make-writeable
+	rm -rf lib www bower_components node_modules vendor tmp
+
+#-------------------------------------------------------------------------------
 test: build
 	node lib/weather.js locations
 	node lib/weather.js 27511
@@ -87,14 +93,25 @@ test: build
 
 #-------------------------------------------------------------------------------
 make-writeable: 
-	@-chmod -R +w www/* lib/*
+	@mkdir -p    www lib
+	@chmod -R +w www lib
 
 #-------------------------------------------------------------------------------
 make-read-only: 
-	@-chmod -R -w www/* lib/*
+	@mkdir -p    www lib
+	@chmod -R -w www lib
 
 #-------------------------------------------------------------------------------
-vendor: npm-modules bower
+vendorFiles := $(wildcard vendor/*)
+
+#-------------------------------------------------------------------------------
+vendor: 
+ifeq ($(vendorFiles),)
+	make vendor-files
+endif
+
+#-------------------------------------------------------------------------------
+vendor-files: npm-modules bower
 
 #-------------------------------------------------------------------------------
 npm-modules: 
