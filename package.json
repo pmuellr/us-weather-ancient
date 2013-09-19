@@ -5,6 +5,11 @@
     {
       "us-weather":    "./lib/us-weather.js"
     },
+  "engines": 
+    {
+      "node":          ">=0.8",
+      "npm":           ">=1.2"
+    },
   "description":       "US Weather API via NOAA/NWS",
   "also-see":          "http://graphical.weather.gov/xml/rest.php",
   "author":            "pmuellr",
