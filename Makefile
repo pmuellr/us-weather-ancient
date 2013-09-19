@@ -5,7 +5,7 @@
 BROWSERIFY  = node_modules/.bin/browserify
 COFFEE      = node_modules/.bin/coffee
 COFFEEC     = $(COFFEE) --bare --compile
-MODULES_DIR = m
+MODULES_DIR = www/m
 
 #-------------------------------------------------------------------------------
 help:
@@ -40,17 +40,22 @@ serve:
 	PORT=3002 node server.js --verbose
 
 #-------------------------------------------------------------------------------
-build:
-	@rm   -rf $(MODULES_DIR)
+build: make-writeable _build make-read-only
+
+#-------------------------------------------------------------------------------
+_build:
+	@mkdir -p lib
+	@-rm -rf  lib/*
+
+	@$(COFFEEC) --output lib lib-src/*.coffee 
+
+	@mkdir -p www
+	@rm   -rf www/*
+
 	@mkdir -p $(MODULES_DIR)
 
 	@cd www-src/views; ../../$(COFFEE) ../../tools/views2module.coffee * > ../../$(MODULES_DIR)/views.js
 
-	@-rm -rf  lib/*
-	@mkdir -p lib
-
-	@echo "compiling coffee files"
-	@$(COFFEEC) --output lib                            lib-src/*.coffee 
 	@$(COFFEEC) --output $(MODULES_DIR)                    www-src/modules/*.coffee 
 	@$(COFFEEC) --output $(MODULES_DIR)/controllers        www-src/modules/controllers/*.coffee 
 	@$(COFFEEC) --output $(MODULES_DIR)/directives         www-src/modules/directives/*.coffee 
@@ -67,11 +72,26 @@ build:
 
 	@$(COFFEE) tools/split-sourcemap-data-url.coffee www/index.js
 
+	@mkdir -p www/images
+	@mkdir -p www/vendor
+
+	@cp www-src/*.*         www
+	@cp www-src/images/*    www/images
+	@cp -R vendor/*         www/vendor
+
 #-------------------------------------------------------------------------------
 test: build
 	node lib/weather.js locations
 	node lib/weather.js 27511
 	node lib/weather.js 35.78, -78.8
+
+#-------------------------------------------------------------------------------
+make-writeable: 
+	@-chmod -R +w www/* lib/*
+
+#-------------------------------------------------------------------------------
+make-read-only: 
+	@-chmod -R -w www/* lib/*
 
 #-------------------------------------------------------------------------------
 vendor: npm-modules bower

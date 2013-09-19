@@ -1,8 +1,26 @@
-# Licensed under the Apache License. See footer for details.
+/* Licensed under the Apache License. See footer for details. */
 
-index.js
-index.js.map
+/* pre-definition of ng-cloak to hide template-y goodness */
 
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display:              none;
+}
+
+.map-canvas { 
+    z-order:            -1;
+    position:           absolute;
+    top:                0;
+    bottom:             0;
+    left:               0;
+    right:              0;
+}
+
+.logo-128 {
+    background-image:   url(images/icon-0128.png);
+    width:              128px;
+    height:             128px;
+}
+/*
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
 # 
@@ -18,3 +36,4 @@ index.js.map
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #-------------------------------------------------------------------------------
+*/

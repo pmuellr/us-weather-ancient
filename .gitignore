@@ -8,9 +8,7 @@ m
 bower_components
 node_modules
 vendor
-
-www/index.js
-www/index.js.map
+www
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
