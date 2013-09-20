@@ -6,8 +6,15 @@
   display:              none;
 }
 
-.map-canvas { 
-    z-order:            -1;
+html { 
+    height:     100%;
+}
+
+body { 
+    height:     100%; 
+}
+
+.map-container { 
     position:           absolute;
     top:                0;
     bottom:             0;

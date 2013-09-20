@@ -67,7 +67,6 @@ __build: vendor
 
 	@mkdir -p $(MODULES_DIR)
 
-
 	@$(COFFEEC) --output $(MODULES_DIR)             www-src/modules/*.coffee 
 	@$(COFFEEC) --output $(MODULES_DIR)/controllers www-src/modules/controllers/*.coffee 
 	@$(COFFEEC) --output $(MODULES_DIR)/directives  www-src/modules/directives/*.coffee 
@@ -77,7 +76,6 @@ __build: vendor
 	@cp lib/built-on.js                                          $(MODULES_DIR)/built-on.js
 	@cp package.json                                             $(MODULES_DIR)/package.json
 	@$(COFFEE) tools/files2module.coffee www-src/views         > $(MODULES_DIR)/views.js
-	@$(COFFEE) tools/key2module.coffee Google-Maps-API-key.txt > $(MODULES_DIR)/Google-Maps-API-key.js
 
 	@mkdir -p               tmp/modules/client
 	@cp -R $(MODULES_DIR)/* tmp/modules/client
@@ -100,6 +98,9 @@ __build: vendor
 
 	@$(COFFEE) tools/bodyfy.coffee www-src/index.html www-src/body.html > www/index.html
 	@rm www/body.html
+
+	@$(COFFEE) tools/bodyfy.coffee www-src/index.html www-src/body.html        > tmp/index.html
+	@$(COFFEE) tools/replace-key.coffee tmp/index.html Google-Maps-API-key.txt > www/index.html
 
 	@$(COFFEE) tools/demanifest.coffee www/index.html > www/index-dev.html
 	@$(COFFEE) tools/create-manifest.coffee www       > www/index.appcache

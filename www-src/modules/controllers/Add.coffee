@@ -4,6 +4,8 @@ utils = require "../utils"
 
 coreName = utils.coreName __filename
 
+USGeoCenter = [39.828221, -98.579505]
+
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
     mod.controller coreName, AddController
@@ -16,15 +18,49 @@ AddController = ($scope, Logger, GMap) ->
 
     $scope.hideExpandedNavbar()
 
-    $scope.gmapReady     = false
-    $scope.gmapLoadError = ""
+    $scope.gmap    = GMap
 
-    ready = GMap.ready()
+    return if !$scope.gmap.isLoaded()
 
-    ready.then  (service) -> $scope.gmapReady     = true
-    ready.catch (err)     -> $scope.gmapLoadError = err.message
+    $scope.showMap true
+
+    google.maps.visualRefresh = true
+
+    geocoder    = new google.maps.Geocoder()
+    infoWindow  = new google.maps.InfoWindow content: "hello!"
+
+    location   = new google.maps.LatLng USGeoCenter[0], USGeoCenter[1]
+    mapElement = $(".map-container")[0]
+
+    mapOptions =
+        center:         location
+        zoom:           3
+        mapTypeId:      google.maps.MapTypeId.ROADMAP
+        panControl:     false
+        mapTypeControl: false
+        zoomControl:    true
+        zoomControlOptions:
+            position:   google.maps.ControlPosition.LEFT_CENTER
+
+
+    map = new google.maps.Map mapElement, mapOptions
+
+    marker = new google.maps.Marker
+        position:   location
+        map:        map
+        draggable:  true
+        title:      'select a new us-weather location!'
+
+    google.maps.event.addListener marker, "dragend", ->
+        latlng = marker.getPosition()
+        map.panTo latlng
+        getLocationName latlng
 
     return
+
+#-------------------------------------------------------------------------------
+getLocationName = (latlng) ->
+    console.log "got lat lng: #{latlng}"
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

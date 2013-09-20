@@ -1,11 +1,4 @@
-<div ng-hide="gmapReady" class="alert alert-info">
-    <div ng-hide="gmapLoadError">
-        loading Google Maps
-    </div>
+<div ng-hide="gmap.isLoaded()" class="alert alert-danger">
+    Google Maps not loaded, for some reason
 </div>
 
-<div ng-show="gmapLoadError" class="alert alert-error">
-    {{gmapLoadError}}
-</div>
-
-<div class="map-canvas"></div>

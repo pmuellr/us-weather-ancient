@@ -26,11 +26,17 @@ BodyController = ($scope, Logger) ->
         $scope.dev = $("html").hasClass "dev"
 
     $scope.hideExpandedNavbar = ->
+        # $(".navbar-collapse").collapse("hide") if domReady
+
+    $scope.messages   = Logger.getMessages()
+    $scope.pkg        = pkg
+
+    $scope.displayMap = false
+    $scope.showMap    = (value) -> $scope.displayMap = value
+
+    $scope.$on "$routeChangeSuccess", (next, current) ->
+        $scope.showMap false        
         $(".navbar-collapse").collapse("hide") if domReady
-
-    $scope.messages  = Logger.getMessages()
-    $scope.pkg       = pkg
-
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

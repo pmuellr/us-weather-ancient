@@ -3,94 +3,44 @@
 _ = require "underscore"
 
 utils   = require "../utils"
-weather = require "../us-weather"
-
-Google_Maps_API_key = require "../Google-Maps-API-key"
 
 coreName = utils.coreName __filename
 
+GMapLoaded = false
+
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
-    mod.service coreName, GMapService
+    mod.service coreName, GMap
 
+    checkForGMapsLoaded()
 
 #-------------------------------------------------------------------------------
-class GMapService
+class GMap
 
     #---------------------------------------------------------------------------
-    constructor: (@$window, @$q, @Logger) ->
-        @ready         = false
-        @loadError     = undefined
-        @loadDeferreds = []
-
-        GoogleMapsAPILoad @
+    constructor: (@$window, @Logger) ->
 
     #---------------------------------------------------------------------------
-    load: () ->
-        deferred = @$q.defer()
-
-        if @ready 
-            deferred.resolve @
-            return
-
-        @loadDeferreds.push deferred
-
-        return deferred.promise
-
+    isLoaded: ->
+        return GMapLoaded
 
     #---------------------------------------------------------------------------
     init: () ->
-        @ready = true
-
         google.maps.visualRefresh = true
 
         @geocoder    = new google.maps.Geocoder()
         @infoWindow  = new google.maps.InfoWindow {content: ""}
 
-#-------------------------------------------------------------------------------
-GoogleMapsAPILoad = (service) ->
-    service.ready     = true
-    service.loadError = undefined
-
-    script = document.createElement("script")
-    script.type = "text/javascript"
-    script.src  = [
-        "https://maps.googleapis.com/maps/api/js?key=#{GoogleMapsAPIKey}"
-        "sensor=false"
-        "callback=GoogleMapsAPILoaded"
-    ].join("&")
-
-    window.GoogleMapsAPILoaded = ->
-        GoogleMapsAPILoaded_ service
-
-    setTimeout(
-        -> GoogleMapsAPILoadTimeout service, 
-        10 * 1000
-    )
-
-    document.body.appendChild script
 
 #-------------------------------------------------------------------------------
-GoogleMapsAPILoadTimeout = (service) ->
-    return if service.ready
+checkForGMapsLoaded = ->
+    return if GMapLoaded
 
-    service.loadError = "timeout waiting for Google Maps API to load"
+    if window?.google?.maps?.version?
+        GMapLoaded = true
+        return
 
-    while service.loadDeferreds.length
-        deferred = service.loadDeferreds.shift()
-        deferred.reject Error service.loadError
-
-    return
-
-#-------------------------------------------------------------------------------
-GoogleMapsAPILoaded_ = (service) ->
-    return if service.ready
-
-    service.ready = true
-
-    while service.loadDeferreds.length
-        deferred = service.loadDeferreds.shift()
-        deferred.resolve service
+    setTimeout checkForGMapsLoaded, 500
 
 ###
 var map

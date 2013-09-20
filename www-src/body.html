@@ -18,7 +18,7 @@
                 <li><a href="#/add">Add</a>
                 <li><a href="#/settings">Settings</a>
                 <li><a href="#/messages">Messages 
-                    <span ng-show="messages.length" class="badge">{{messages.length}}</span>
+                    <span ng-show="messages.length" class="badge" ng-bind="messages.length"></span>
                 </a>
                 <li><a href="#/help">Help</a>
             </ul>
@@ -31,6 +31,9 @@
                 <div ng-view></div>
             </div>
         </div>
+    </div>
+
+    <div class="map-container" ng-show="displayMap">
     </div>
 
 </body>

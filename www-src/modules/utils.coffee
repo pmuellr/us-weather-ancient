@@ -23,28 +23,6 @@ utils.coreName = (fileName) ->
     return fileName.split(".")[0]
 
 #-------------------------------------------------------------------------------
-watchWindowResizing = ->
-    timeout = null
-
-    #----------------------------------
-    fireResizingComplete = ->
-        $window = $(window)
-        event = new CustomEvent "window-resizing-complete", 
-            detail:
-                width:  $window.width()
-                height: $window.height()
-
-        window.dispatchEvent event
-
-    #----------------------------------
-    $(window).resize ->
-        clearTimeout(timeout) if timeout
-        timeout = setTimeout(fireResizingComplete, 500)
-
-#-------------------------------------------------------------------------------
-watchWindowResizing()
-
-#-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
