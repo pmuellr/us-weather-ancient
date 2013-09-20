@@ -5,18 +5,25 @@ path = require "path"
 
 PROGRAM = path.basename(__filename)
 
-main = (iFile) ->
+main = (index, body) ->
 
-    error "expecting argument iFile" if !iFile?
+    error "expecting arguments index.html body.html" if !index? or !body?
 
     try
-        content = fs.readFileSync iFile, "utf8"
+        indexContent = fs.readFileSync index, "utf8"
     catch e
-        error "error reading '#{iFile}: #{e}"
+        return error "error reading '#{index}: #{e}"
 
-    content = content.replace /<html manifest="index.appcache"/, '<html class="dev"'
+    try
+        bodyContent = fs.readFileSync body, "utf8"
+    catch e
+        return error "error reading '#{body}: #{e}"
 
-    console.log content
+    bodyContent  = bodyContent.replace /^\s*<!--[\s\S]*?-->\s*/, ""
+    bodyContent  = bodyContent.replace /\s*<!--[\s\S]*?-->\s*$/, ""
+    indexContent = indexContent.replace /<body>.*?<\/body>/, bodyContent
+
+    console.log indexContent
 
     return
 

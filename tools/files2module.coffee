@@ -5,20 +5,48 @@ path = require "path"
 
 PROGRAM = path.basename(__filename)
 
-main = (iFile) ->
+main = (iDir) ->
+    error "expecting argument iDir" if !iDir?
 
-    error "expecting argument iFile" if !iFile?
+    fileNames = getFiles iDir
+    files     = {}
+    
+    for fileName in fileNames
+        fullName = path.join iDir, fileName
+        try
+            files[fileName] = fs.readFileSync fullName, "utf8"
+        catch e
+            return error "error reading '#{fullName}: #{e}"
 
-    try
-        content = fs.readFileSync iFile, "utf8"
-    catch e
-        error "error reading '#{iFile}: #{e}"
+    console.log "// created by #{PROGRAM} on #{new Date()}"
+    console.log ""
 
-    content = content.replace /<html manifest="index.appcache"/, '<html class="dev"'
+    for fileName, contents of files
+        fileName = JSON.stringify fileName
+        contents = JSON.stringify contents
 
-    console.log content
+        console.log "exports[#{fileName}] = #{contents};"
 
     return
+
+#-------------------------------------------------------------------------------
+getFiles = (dir, currPath="", collection=[]) ->
+    files = fs.readdirSync(dir)
+
+    for file in files
+        fullName = path.join dir,      file
+        currName = path.join currPath, file
+
+        stats    = fs.statSync fullName
+
+        if stats.isFile()
+            collection.push currName
+
+        else if stats.isDirectory()
+            getFiles fullName, currName, collection
+
+    return collection    
+
 
 #-------------------------------------------------------------------------------
 error = (message) ->

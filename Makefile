@@ -43,7 +43,12 @@ serve:
 build: make-writeable _build make-read-only
 
 #-------------------------------------------------------------------------------
-_build: vendor
+_build: 
+	@echo "time'ing build"
+	@time make __build
+
+#-------------------------------------------------------------------------------
+__build: vendor
 
 	@echo "building server code in lib"
 	@mkdir -p lib
@@ -62,18 +67,17 @@ _build: vendor
 
 	@mkdir -p $(MODULES_DIR)
 
-	@cd www-src/views; ../../$(COFFEE) ../../tools/views2module.coffee * > ../../$(MODULES_DIR)/views.js
 
-	@$(COFFEEC) --output $(MODULES_DIR)                    www-src/modules/*.coffee 
-	@$(COFFEEC) --output $(MODULES_DIR)/controllers        www-src/modules/controllers/*.coffee 
-	@$(COFFEEC) --output $(MODULES_DIR)/directives         www-src/modules/directives/*.coffee 
-	@$(COFFEEC) --output $(MODULES_DIR)/filters            www-src/modules/filters/*.coffee 
-	@$(COFFEEC) --output $(MODULES_DIR)/services           www-src/modules/services/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)             www-src/modules/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)/controllers www-src/modules/controllers/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)/directives  www-src/modules/directives/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)/filters     www-src/modules/filters/*.coffee 
+	@$(COFFEEC) --output $(MODULES_DIR)/services    www-src/modules/services/*.coffee 
 
+	@cp lib/built-on.js                                          $(MODULES_DIR)/built-on.js
+	@cp package.json                                             $(MODULES_DIR)/package.json
+	@$(COFFEE) tools/files2module.coffee www-src/views         > $(MODULES_DIR)/views.js
 	@$(COFFEE) tools/key2module.coffee Google-Maps-API-key.txt > $(MODULES_DIR)/Google-Maps-API-key.js
-
-	@cp lib/built-on.js $(MODULES_DIR)/built-on.js
-	@cp package.json    $(MODULES_DIR)/package.json
 
 	@mkdir -p               tmp/modules/client
 	@cp -R $(MODULES_DIR)/* tmp/modules/client
@@ -94,8 +98,12 @@ _build: vendor
 	@cp www-src/images/*    www/images
 	@cp -R vendor/*         www/vendor
 
+	@$(COFFEE) tools/bodyfy.coffee www-src/index.html www-src/body.html > www/index.html
+	@rm www/body.html
+
 	@$(COFFEE) tools/demanifest.coffee www/index.html > www/index-dev.html
-	@$(COFFEE) tools/create-manifest.coffee www > www/index.appcache
+	@$(COFFEE) tools/create-manifest.coffee www       > www/index.appcache
+
 
 #-------------------------------------------------------------------------------
 clean: make-writeable

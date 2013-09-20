@@ -1,6 +1,7 @@
 # Licensed under the Apache License. See footer for details.
 
 utils = require "../utils"
+pkg   = require "../package.json"
 
 coreName = utils.coreName __filename
 
@@ -28,6 +29,8 @@ BodyController = ($scope, Logger) ->
         $(".navbar-collapse").collapse("hide") if domReady
 
     $scope.messages  = Logger.getMessages()
+    $scope.pkg       = pkg
+
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
