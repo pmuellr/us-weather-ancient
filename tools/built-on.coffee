@@ -5,19 +5,9 @@ path = require "path"
 
 PROGRAM = path.basename(__filename)
 
-main = (iFile) ->
+main = () ->
 
-    error "expecting arguments keyFile" if !iFile?
-
-    try
-        key = fs.readFileSync iFile, "utf8"
-        key = key.trim()
-    catch e
-        return error "error reading '#{iFile}: #{e}"
-
-    console.log "// created by #{PROGRAM} on #{new Date()}"
-    console.log ""
-    console.log "exports.key = '#{key}'"
+    console.log "exports.date = new Date('#{new Date().toISOString()}')"
 
     return
 

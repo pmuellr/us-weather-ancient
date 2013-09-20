@@ -1,6 +1,8 @@
 # Licensed under the Apache License. See footer for details.
 
-utils = require "../utils"
+utils   = require "../utils"
+pkg     = require "../package.json"
+builtOn = require "../built-on"
 
 coreName = utils.coreName __filename
 
@@ -15,6 +17,8 @@ HelpController = ($scope, Logger) ->
     Logger.log "controller #{coreName} created"
 
     $scope.hideExpandedNavbar()
+    $scope.pkg     = pkg
+    $scope.builtOn = builtOn.date.toString()
 
     return
 

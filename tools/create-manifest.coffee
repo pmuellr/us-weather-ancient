@@ -5,21 +5,49 @@ path = require "path"
 
 PROGRAM = path.basename(__filename)
 
-main = (iFile) ->
+main = (iDir) ->
 
-    error "expecting arguments keyFile" if !iFile?
+    error "expecting argument iDir" if !iDir?
 
+    currPath = []
     try
-        key = fs.readFileSync iFile, "utf8"
-        key = key.trim()
+        files = getFiles iDir
     catch e
-        return error "error reading '#{iFile}: #{e}"
+        return error "error reading directory '#{iDir}: #{e}"
 
-    console.log "// created by #{PROGRAM} on #{new Date()}"
+    console.log "CACHE MANIFEST"
     console.log ""
-    console.log "exports.key = '#{key}'"
+    console.log "# created by #{PROGRAM} on #{new Date()}"
+    console.log ""
+
+    console.log "CACHE:"
+    for file in files
+        console.log file
+    console.log ""
+
+    console.log "NETWORK:"
+    console.log "*"
 
     return
+
+#-------------------------------------------------------------------------------
+getFiles = (dir, currPath="", collection=[]) ->
+
+    files = fs.readdirSync(dir)
+
+    for file in files
+        fullName = path.join dir,      file
+        currName = path.join currPath, file
+
+        stats    = fs.statSync fullName
+
+        if stats.isFile()
+            collection.push currName
+
+        else if stats.isDirectory()
+            getFiles fullName, currName, collection
+
+    return collection    
 
 #-------------------------------------------------------------------------------
 error = (message) ->

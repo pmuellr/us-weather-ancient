@@ -51,6 +51,11 @@ _build: vendor
 
 	@$(COFFEEC) --output lib lib-src/*.coffee 
 
+	@$(COFFEE) tools/built-on.coffee > lib/built-on.js
+
+	@mkdir -p    tmp/modules/server
+	@cp -R lib/* tmp/modules/server
+
 	@echo "building client code in www"
 	@mkdir -p www
 	@rm   -rf www/*
@@ -67,6 +72,12 @@ _build: vendor
 
 	@$(COFFEE) tools/key2module.coffee Google-Maps-API-key.txt > $(MODULES_DIR)/Google-Maps-API-key.js
 
+	@cp lib/built-on.js $(MODULES_DIR)/built-on.js
+	@cp package.json    $(MODULES_DIR)/package.json
+
+	@mkdir -p               tmp/modules/client
+	@cp -R $(MODULES_DIR)/* tmp/modules/client
+
 	@$(BROWSERIFY) \
 		--debug \
 		--outfile www/index.js \
@@ -74,12 +85,17 @@ _build: vendor
 
 	@$(COFFEE) tools/split-sourcemap-data-url.coffee www/index.js
 
+	@rm -rf $(MODULES_DIR)
+	
 	@mkdir -p www/images
 	@mkdir -p www/vendor
 
 	@cp www-src/*.*         www
 	@cp www-src/images/*    www/images
 	@cp -R vendor/*         www/vendor
+
+	@$(COFFEE) tools/demanifest.coffee www/index.html > www/index-dev.html
+	@$(COFFEE) tools/create-manifest.coffee www > www/index.appcache
 
 #-------------------------------------------------------------------------------
 clean: make-writeable
@@ -129,17 +145,19 @@ bower:
 	@bower install bootstrap\#3.0.x
 	@bower install font-awesome\#3.2.x
 
-	@cp bower_components/jquery/jquery.js      vendor
-	@cp bower_components/jquery/jquery.min.js  vendor
-	@cp bower_components/jquery/jquery.min.map vendor
+	@mkdir -p vendor/jquery
+	@cp bower_components/jquery/jquery.js      vendor/jquery
+	@cp bower_components/jquery/jquery.min.js  vendor/jquery
+	@cp bower_components/jquery/jquery.min.map vendor/jquery
 
-	@cp bower_components/angular/angular.js         vendor
-	@cp bower_components/angular/angular.min.js     vendor
-	@cp bower_components/angular/angular.min.js.map vendor
+	@mkdir -p vendor/angular
+	@cp bower_components/angular/angular.js         vendor/angular
+	@cp bower_components/angular/angular.min.js     vendor/angular
+	@cp bower_components/angular/angular.min.js.map vendor/angular
 
-	@cp bower_components/angular-route/angular-route.js         vendor
-	@cp bower_components/angular-route/angular-route.min.js     vendor
-	@cp bower_components/angular-route/angular-route.min.js.map vendor
+	@cp bower_components/angular-route/angular-route.js         vendor/angular
+	@cp bower_components/angular-route/angular-route.min.js     vendor/angular
+	@cp bower_components/angular-route/angular-route.min.js.map vendor/angular
 
 	@mkdir vendor/bootstrap
 	@mkdir vendor/bootstrap/css

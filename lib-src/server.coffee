@@ -38,6 +38,7 @@ main = ->
     # app.use setOptions(options)
 
     app.use express.favicon(favIcon)
+
     # app.use express.json(strict: false)
     # app.use express.urlencoded()
 

@@ -7,17 +7,16 @@ PROGRAM = path.basename(__filename)
 
 main = (iFile) ->
 
-    error "expecting arguments keyFile" if !iFile?
+    error "expecting argument iFile" if !iFile?
 
     try
-        key = fs.readFileSync iFile, "utf8"
-        key = key.trim()
+        content = fs.readFileSync iFile, "utf8"
     catch e
         return error "error reading '#{iFile}: #{e}"
 
-    console.log "// created by #{PROGRAM} on #{new Date()}"
-    console.log ""
-    console.log "exports.key = '#{key}'"
+    content = content.replace /<html manifest="index.appcache"/, '<html class="dev"'
+
+    console.log content
 
     return
 

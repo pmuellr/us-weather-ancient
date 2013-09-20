@@ -15,6 +15,9 @@ main = (iFileNames) ->
         catch e
             return error "error reading '#{iFileName}: #{e}"
 
+    console.log "// created by #{PROGRAM} on #{new Date()}"
+    console.log ""
+
     for fileName, contents of files
         fileName = JSON.stringify fileName
         contents = JSON.stringify contents

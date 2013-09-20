@@ -22,6 +22,15 @@ data   = new Buffer(data64, "base64").toString("ascii")
 
 data = JSON.parse(data)
 
+newData = 
+    createdBy: PROGRAM
+    createdOn: "#{new Date()}"
+
+for key, value of data
+    newData[key] = value
+
+data = newData
+
 cwd        = process.cwd()
 sources    = data.sources
 newSources = []
@@ -40,6 +49,7 @@ for source in sources
     newSources.push source
 
 data.sources = newSources
+
 data = JSON.stringify data, null, 4
 
 oFileBaseName = path.basename oFileName

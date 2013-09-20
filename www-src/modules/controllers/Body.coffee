@@ -22,6 +22,8 @@ BodyController = ($scope, Logger) ->
     $ ->
         domReady = true
 
+        $scope.dev = $("html").hasClass "dev"
+
     $scope.hideExpandedNavbar = ->
         $(".navbar-collapse").collapse("hide") if domReady
 
