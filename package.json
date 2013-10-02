@@ -27,14 +27,16 @@
       "express":          "3.4.x",
       "htmlparser":       "1.7.x",
       "lru-cache":        "2.3.x",
+      "passport":         "0.1.x",
       "soupselect":       "0.2.x",
       "underscore":       "1.5.x"
     },
   "devDependencies":
     {
-      "browserify":       "2.31.x",
+      "browserify":       "2.33.x",
       "coffee-script":    "1.6.x",
-      "supervisor":       "0.5.x"
+      "grunt":            "0.4.x",
+      "shelljs":          "0.2.6"
     },
   "homepage":          "https://github.com/pmuellr/us-weather",
   "bugs":              "https://github.com/pmuellr/us-weather/issues",

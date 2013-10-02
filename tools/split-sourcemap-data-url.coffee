@@ -18,7 +18,7 @@ if !match?
     process.exit()
     
 data64 = match[1]
-data   = new Buffer(data64, "base64").toString("ascii")
+data   = new Buffer(data64, "base64").toString("utf8")
 
 data = JSON.parse(data)
 
