@@ -14,8 +14,6 @@ module.exports = (mod) ->
 MessagesController = ($scope, Logger) ->
     Logger.log "controller #{coreName} created"
 
-    $scope.hideExpandedNavbar()
-
     $scope.messages = Logger.getMessages()
 
     $scope.clear = -> Logger.clear()

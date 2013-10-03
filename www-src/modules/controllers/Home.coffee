@@ -14,8 +14,6 @@ module.exports = (mod) ->
 HomeController = ($scope, Logger) ->
     Logger.log "controller #{coreName} created"
 
-    $scope.hideExpandedNavbar()
-
     return
 
 #-------------------------------------------------------------------------------

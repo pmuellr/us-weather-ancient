@@ -30,6 +30,11 @@ module.exports = (grunt) ->
             "www"
         ]
 
+        icons: 
+            dir:     "www-src/images"
+            srcSize:  512
+            dstSizes: "16 32 57 64 72 76 96 114 120 128 144 152 256 1024".split " "
+        
         bower:
             "jquery":
                 version: "2.0.3"
@@ -78,23 +83,21 @@ module.exports = (grunt) ->
         runBuild grunt, @
 
     grunt.registerTask "serve", "Run the server", ->
-        @.async()
+        @async()
         runServe grunt, @
 
     grunt.registerTask "watch", "When src files change, re-build and re-serve", ->
-        runWatch grunt, @
+        @async()
+        runWatch grunt
 
     grunt.registerTask "vendor", "Get vendor files", ->
         runVendor grunt, @
 
-    grunt.registerTask "clean", "remove generated files", ->
-        dirs = grunt.config "clean"
+    grunt.registerTask "clean", "Remove generated files", ->
+        runClean grunt, @
 
-        makeWritable()
-
-        for dir in dirs
-            if test "-d", dir
-                rm "-rf", dir
+    grunt.registerTask "icons", "Regenerate icons", ->
+        runIcons grunt, @
 
     grunt.registerTask "-------------", "internal tasks below", ->
 
@@ -122,7 +125,8 @@ runBuildMeat = (grunt, task) ->
 
     timeStart = Date.now()
 
-    rm "-rf", "tmp/modules"
+    mkdir "-p", "tmp"
+    rm "-rf", "tmp/modules" if test "-d", "tmp/modules"
 
     #----------------------------------
     grunt.log.writeln "building server code in lib"
@@ -196,53 +200,55 @@ runBuildMeat = (grunt, task) ->
 
 #-------------------------------------------------------------------------------
 
-runServe = (grunt, task) ->
-    if test "-f", ServerPidFile
-        try 
-            pid = cat ServerPidFile
-            rm ServerPidFile if test "-f", ServerPidFile
+runServe = (grunt) ->
+    serverStart grunt
 
-            pid = parseInt pid, 10
-            process.kill pid
+    return
+
+#-------------------------------------------------------------------------------
+
+ServerProcess = null
+
+#-------------------------------------------------------------------------------
+
+serverKill = (grunt, callback) ->
+    grunt.log.writeln "serverKill()->"
+
+    if ServerProcess?
+        try 
+            grunt.log.writeln "   -> kill() pid: #{ServerProcess.pid}"
+            ServerProcess.kill()
+            grunt.log.writeln "   <- kill() pid: #{ServerProcess.pid}"
+            ServerProcess = null
 
         catch err
 
-        finally
-            setTimeout (-> runServe2 grunt, task), 1000
+    process.nextTick -> callback() if callback?
+
+    return
+
+#-------------------------------------------------------------------------------
+
+serverStart = (grunt) ->
+
+    serverKill grunt, ->
+        grunt.log.writeln "serverStart()->"
+        options = 
+            stdio: "inherit"
+
+        ServerProcess = child_process.spawn "node", ["server.js"], options
+        grunt.log.writeln "   pid: #{ServerProcess.pid}"
+
+        ServerProcess.once "exit", getPidLogger(ServerProcess.pid)
 
         return
 
-    runServe2(grunt, task)
-
-    return
+#-------------------------------------------------------------------------------
+getPidLogger = (pid) ->
+    -> console.log "serverStart(): process 'exit', pid: #{pid}"
 
 #-------------------------------------------------------------------------------
-
-runServe2 = (grunt, task) ->
-    options = 
-        stdio: "inherit"
-
-    serverProcess = child_process.spawn "node", ["server.js"], options
-
-    pid = "#{serverProcess.pid}"
-    pid.to ServerPidFile
-
-    serverProcess.once "exit", ->
-        rm ServerPidFile if test "-f", ServerPidFile
-    
-    return
-
-#-------------------------------------------------------------------------------
-
-runWatch = (grunt, task) ->
-    task.async()
-
-    watchTripped grunt
-
-    return
-
-#-------------------------------------------------------------------------------
-watchTripped = (grunt, fileName, watchers=[]) ->
+runWatch = (grunt, fileName=null, watchers=[]) ->
     return if watchers.tripped
 
     if fileName
@@ -256,8 +262,9 @@ watchTripped = (grunt, fileName, watchers=[]) ->
         watchers.splice 0, watchers.length
         watchers.tripped = true
 
-    runBuild grunt
-    runServe grunt
+    serverKill  grunt
+    runBuild    grunt
+    serverStart grunt
 
     watchFiles = []
     watchDirs  = grunt.config "watch"
@@ -288,9 +295,22 @@ getWatchHandler = (grunt, watchFile, watchers) ->
     return (curr, prev) ->
         return if curr.mtime == prev.mtime
 
-        watchTripped grunt, watchFile, watchers
+        runWatch grunt, watchFile, watchers
 
         return
+
+#-------------------------------------------------------------------------------
+
+runClean = (grunt) ->
+    dirs = grunt.config "clean"
+
+    makeWritable()
+
+    for dir in dirs
+        if test "-d", dir
+            rm "-rf", dir
+
+    return
 
 #-------------------------------------------------------------------------------
 
@@ -330,6 +350,71 @@ runBower = (grunt, task) ->
         cp srcFile, dstDir
 
     return
+
+#-------------------------------------------------------------------------------
+
+runIcons = (grunt) ->
+    {dir, srcSize, dstSizes} = grunt.config "icons"
+
+    if !which "convert"
+        grunt.log.writeln "ImageMagick convert not available, unable to create icons."
+        return
+
+    srcSize = align "#{srcSize}", "right", 4, "0"
+    srcFile = "#{dir}/icon-#{srcSize}.png"
+
+    dstSizes = _.map dstSizes, (dstSize) -> align dstSize, "right", 4, "0"
+
+    for dstSize in dstSizes
+        resizeOption = "-resize #{dstSize}x#{dstSize}"
+        dstFile      = "#{dir}/icon-#{dstSize}.png"
+
+        cmd = "convert #{resizeOption} #{srcFile} #{dstFile}"
+
+        grunt.log.writeln cmd
+        exec cmd
+
+    if !which "iconutil"
+        grunt.log.writeln "iconutil not available, unable to create icns."
+        return
+
+    mkdir "-p", "tmp/app.iconset"
+    rm "-rf",   "tmp/app.iconset/*"
+
+    cp "#{dir}/icon-0016.png", "tmp/app.iconset/icon_16x16.png"       if test "-f", "#{dir}/icon-0016.png"  
+    cp "#{dir}/icon-0032.png", "tmp/app.iconset/icon_16x16@2x.png"    if test "-f", "#{dir}/icon-0032.png"      
+    cp "#{dir}/icon-0032.png", "tmp/app.iconset/icon_32x32.png"       if test "-f", "#{dir}/icon-0032.png"  
+    cp "#{dir}/icon-0064.png", "tmp/app.iconset/icon_32x32@2x.png"    if test "-f", "#{dir}/icon-0064.png"      
+    cp "#{dir}/icon-0128.png", "tmp/app.iconset/icon_128x128.png"     if test "-f", "#{dir}/icon-0128.png"      
+    cp "#{dir}/icon-0256.png", "tmp/app.iconset/icon_128x128@2x.png"  if test "-f", "#{dir}/icon-0256.png"          
+    cp "#{dir}/icon-0256.png", "tmp/app.iconset/icon_256x256.png"     if test "-f", "#{dir}/icon-0256.png"      
+    cp "#{dir}/icon-0512.png", "tmp/app.iconset/icon_256x256@2x.png"  if test "-f", "#{dir}/icon-0512.png"          
+    cp "#{dir}/icon-0512.png", "tmp/app.iconset/icon_512x512.png"     if test "-f", "#{dir}/icon-0512.png"      
+    cp "#{dir}/icon-1024.png", "tmp/app.iconset/icon_512x512@2x.png"  if test "-f", "#{dir}/icon-1024.png"          
+
+
+    cmd = "iconutil -c icns -o #{dir}/app.icns tmp/app.iconset"
+    grunt.log.writeln cmd
+    exec cmd
+
+    return
+
+#-------------------------------------------------------------------------------
+align = (s, direction, length, pad=" ") ->
+
+    direction = direction.toUpperCase()[0]
+
+    if direction is "L"
+        doPad = (s) -> s + pad
+    else if direction is "R"
+        doPad = (s) -> pad + s
+    else
+        throw Error "invalid direction argument for align()"
+
+    while s.length < length
+        s = doPad s
+
+    return s
 
 #-------------------------------------------------------------------------------
 

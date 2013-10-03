@@ -1,35 +1,83 @@
 # Licensed under the Apache License. See footer for details.
 
+events = require "events"
+
 _ = require "underscore"
 
-utils   = require "../utils"
+utils = require "../utils"
 
 coreName = utils.coreName __filename
 
-GMapLoaded = false
-
 #-------------------------------------------------------------------------------
 module.exports = (mod) ->
-    mod.service coreName, GMap
+    mod.service coreName, GMapService
 
-    checkForGMapsLoaded()
+    $ checkForGMapsLoaded()
 
 #-------------------------------------------------------------------------------
-class GMap
+
+Service = null
+
+#-------------------------------------------------------------------------------
+class GMapService extends events.EventEmitter
 
     #---------------------------------------------------------------------------
     constructor: (@$window, @Logger) ->
+        Service = @
 
     #---------------------------------------------------------------------------
     isLoaded: ->
         return GMapLoaded
 
     #---------------------------------------------------------------------------
-    init: () ->
-        google.maps.visualRefresh = true
+    panTo: (latlng) ->
+        Map?.panTo latlng
+        return
 
-        @geocoder    = new google.maps.Geocoder()
-        @infoWindow  = new google.maps.InfoWindow {content: ""}
+#-------------------------------------------------------------------------------
+
+USGeoCenter     = [39.828221, -98.579505]
+
+GMapLoaded      = false
+Geocoder        = null
+InfoWindow      = null
+MarkerLocation  = null
+Map             = null
+Marker          = null
+
+#-------------------------------------------------------------------------------
+init = ->
+    google.maps.visualRefresh = true
+
+    Geocoder    = new google.maps.Geocoder()
+    InfoWindow  = new google.maps.InfoWindow {content: ""}
+
+    MarkerLocation   = new google.maps.LatLng USGeoCenter[0], USGeoCenter[1]
+
+    mapElement = $(".map-container")[0]
+
+    mapOptions =
+        center:         MarkerLocation
+        zoom:           3
+        mapTypeId:      google.maps.MapTypeId.ROADMAP
+        panControl:     false
+        mapTypeControl: false
+        zoomControl:    true
+        zoomControlOptions:
+            position:   google.maps.ControlPosition.LEFT_CENTER
+
+    Map = new google.maps.Map mapElement, mapOptions
+
+    Marker = new google.maps.Marker
+        position:   MarkerLocation
+        map:        Map
+        draggable:  true
+        title:      'select a new us-weather location!'
+
+    google.maps.event.addListener Marker, "dragend", ->
+        return if !Service?
+
+        Service.emit "marker-moved", Marker.getPosition()
 
 
 #-------------------------------------------------------------------------------
@@ -38,6 +86,7 @@ checkForGMapsLoaded = ->
 
     if window?.google?.maps?.version?
         GMapLoaded = true
+        init()
         return
 
     setTimeout checkForGMapsLoaded, 500

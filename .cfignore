@@ -7,9 +7,9 @@ tmp
 bower_components
 node_modules
 
-
-
-
+lib-src
+www-src
+tools
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

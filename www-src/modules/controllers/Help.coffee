@@ -15,7 +15,6 @@ module.exports = (mod) ->
 HelpController = ($scope, Logger) ->
     Logger.log "controller #{coreName} created"
 
-    $scope.hideExpandedNavbar()
     $scope.builtOn = builtOn.date.toString()
 
     return

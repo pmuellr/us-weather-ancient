@@ -16,44 +16,17 @@ module.exports = (mod) ->
 AddController = ($scope, Logger, GMap) ->
     Logger.log "controller #{coreName} created"
 
-    $scope.hideExpandedNavbar()
+    $scope.gmap = GMap
+    
+    return if !GMap.isLoaded()
 
-    $scope.gmap    = GMap
+    $(".map-container").show()
 
-    return if !$scope.gmap.isLoaded()
+    $scope.$on "$destroy", ->
+        $(".map-container").hide()
 
-    $scope.showMap true
-
-    google.maps.visualRefresh = true
-
-    geocoder    = new google.maps.Geocoder()
-    infoWindow  = new google.maps.InfoWindow content: "hello!"
-
-    location   = new google.maps.LatLng USGeoCenter[0], USGeoCenter[1]
-    mapElement = $(".map-container")[0]
-
-    mapOptions =
-        center:         location
-        zoom:           3
-        mapTypeId:      google.maps.MapTypeId.ROADMAP
-        panControl:     false
-        mapTypeControl: false
-        zoomControl:    true
-        zoomControlOptions:
-            position:   google.maps.ControlPosition.LEFT_CENTER
-
-
-    map = new google.maps.Map mapElement, mapOptions
-
-    marker = new google.maps.Marker
-        position:   location
-        map:        map
-        draggable:  true
-        title:      'select a new us-weather location!'
-
-    google.maps.event.addListener marker, "dragend", ->
-        latlng = marker.getPosition()
-        map.panTo latlng
+    GMap.on "marker-moved", (latlng)->
+        GMap.panTo latlng
         getLocationName latlng
 
     return
