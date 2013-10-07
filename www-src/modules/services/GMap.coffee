@@ -34,6 +34,16 @@ class GMapService extends events.EventEmitter
         Map?.panTo latlng
         return
 
+    #---------------------------------------------------------------------------
+    triggerResize: ->
+        return unless Map?
+
+        process.nextTick =>
+            google.maps.event.trigger Map, "resize"
+            @panTo Marker.getPosition()
+        return
+
+
 #-------------------------------------------------------------------------------
 
 USGeoCenter     = [39.828221, -98.579505]

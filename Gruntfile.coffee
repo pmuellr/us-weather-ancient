@@ -7,9 +7,6 @@ child_process = require "child_process"
 require "shelljs/global"
 _ = require "underscore"
 
-BuildDoneFile = "tmp/build-done.txt"
-ServerPidFile = "tmp/server.pid"
-
 #-------------------------------------------------------------------------------
 
 module.exports = (grunt) ->
@@ -99,11 +96,6 @@ module.exports = (grunt) ->
     grunt.registerTask "icons", "Regenerate icons", ->
         runIcons grunt, @
 
-    grunt.registerTask "-------------", "internal tasks below", ->
-
-    grunt.registerMultiTask "bower" , "Get files from bower", ->
-        runBower grunt, @
-
 #-------------------------------------------------------------------------------
 
 runBuild = (grunt, task) ->
@@ -115,9 +107,6 @@ runBuild = (grunt, task) ->
     makeWriteable grunt, task
     runBuildMeat  grunt, task
     makeReadOnly  grunt, task
-
-    content = "build done on #{new Date}"
-    content.to BuildDoneFile
 
 #-------------------------------------------------------------------------------
 
@@ -211,41 +200,39 @@ ServerProcess = null
 
 #-------------------------------------------------------------------------------
 
-serverKill = (grunt, callback) ->
-    grunt.log.writeln "serverKill()->"
+serverKill = (grunt, callback=->) ->
+    unless ServerProcess?
+        process.nextTick -> callback()
+        return
 
-    if ServerProcess?
-        try 
-            grunt.log.writeln "   -> kill() pid: #{ServerProcess.pid}"
-            ServerProcess.kill()
-            grunt.log.writeln "   <- kill() pid: #{ServerProcess.pid}"
-            ServerProcess = null
+    ServerProcess.once "exit", -> 
+        ServerProcess = null
+        process.nextTick -> callback()
+        return
 
-        catch err
-
-    process.nextTick -> callback() if callback?
-
+    ServerProcess.kill()
     return
 
 #-------------------------------------------------------------------------------
 
 serverStart = (grunt) ->
 
-    serverKill grunt, ->
-        grunt.log.writeln "serverStart()->"
-        options = 
-            stdio: "inherit"
+    options = 
+        stdio: "inherit"
 
-        ServerProcess = child_process.spawn "node", ["server.js"], options
-        grunt.log.writeln "   pid: #{ServerProcess.pid}"
+    ServerProcess = child_process.spawn "node", ["server.js"], options
 
-        ServerProcess.once "exit", getPidLogger(ServerProcess.pid)
-
-        return
+    return
 
 #-------------------------------------------------------------------------------
-getPidLogger = (pid) ->
-    -> console.log "serverStart(): process 'exit', pid: #{pid}"
+
+serverRestart = (grunt) ->
+
+    serverKill grunt, -> 
+        serverStart grunt
+        return
+
+    return
 
 #-------------------------------------------------------------------------------
 runWatch = (grunt, fileName=null, watchers=[]) ->
@@ -262,9 +249,8 @@ runWatch = (grunt, fileName=null, watchers=[]) ->
         watchers.splice 0, watchers.length
         watchers.tripped = true
 
-    serverKill  grunt
-    runBuild    grunt
-    serverStart grunt
+    runBuild      grunt
+    serverRestart grunt
 
     watchFiles = []
     watchDirs  = grunt.config "watch"
@@ -342,6 +328,7 @@ runBower = (grunt, task) ->
             grunt.log.writeln ""
 
     exec "#{bower} install #{pkg}##{version}"
+    grunt.log.writeln ""
 
     for srcFile, dstDir of files
         mkdir "-p", dstDir

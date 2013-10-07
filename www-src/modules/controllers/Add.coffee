@@ -21,6 +21,7 @@ AddController = ($scope, Logger, GMap) ->
     return if !GMap.isLoaded()
 
     $(".map-container").show()
+    process.nextTick -> GMap.triggerResize()
 
     $scope.$on "$destroy", ->
         $(".map-container").hide()
