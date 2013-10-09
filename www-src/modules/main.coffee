@@ -1,30 +1,79 @@
 # Licensed under the Apache License. See footer for details.
 
+_ = require "underscore"
+
 utils   = require "./utils"
 
-mod = null
+amod = angular.module "app", ["ngRoute"]
+
+controllers = 
+    Add:        require "./controllers/Add"
+    Body:       require "./controllers/Body"
+    Help:       require "./controllers/Help"
+    Home:       require "./controllers/Home"
+    Messages:   require "./controllers/Messages"
+    Settings:   require "./controllers/Settings"
+
+directives = 
+    WChart:     require "./directives/WChart"
+
+filters =
+    LogTime:    require "./filters/LogTime"
+
+services =    
+    GMap:       require "./services/GMap"
+    Logger:     require "./services/Logger"
+    Locations:  require "./services/Locations"
 
 #-------------------------------------------------------------------------------
 main = ->
-    mod = angular.module "app", ["ngRoute"]
 
-    register require "./controllers/Add"
-    register require "./controllers/Body"
-    register require "./controllers/Help"
-    register require "./controllers/Home"
-    register require "./controllers/Messages"
-    register require "./controllers/Settings"
-    register require "./directives/WChart"
-    register require "./filters/LogTime"
-    register require "./services/GMap"
-    register require "./services/Logger"
-    register require "./services/Locations"
-    
+    registerController  name, mod for name, mod of controllers
+    registerDirective   name, mod for name, mod of directives
+    registerFilter      name, mod for name, mod of filters
+    registerService     name, mod for name, mod of services
+
     register require "./routes"
 
 #-------------------------------------------------------------------------------
 register = (fn) ->
-    fn mod
+    fn amod
+
+#-------------------------------------------------------------------------------
+registerController = (name, mod) ->
+    fn = mod?.controller
+
+    if !_.isFunction fn
+        throw Error "controller module #{name} does not export a 'controller' function"
+
+    amod.controller name, fn
+
+#-------------------------------------------------------------------------------
+registerDirective = (name, mod) ->
+    fn = mod?.directive
+
+    if !_.isFunction fn
+        throw Error "directive module #{name} does not export a 'directive' function"
+
+    amod.directive name, fn
+
+#-------------------------------------------------------------------------------
+registerFilter = (name, mod) ->
+    fn = mod?.filter
+
+    if !_.isFunction fn
+        throw Error "filter module #{name} does not export a 'filter' function"
+
+    amod.filter name, fn
+
+#-------------------------------------------------------------------------------
+registerService = (name, mod) ->
+    cls = mod?.service
+
+    if !_.isFunction cls
+        throw Error "service module #{name} does not export a 'service' class"
+
+    amod.service name, mod.service
 
 #-------------------------------------------------------------------------------
 main()

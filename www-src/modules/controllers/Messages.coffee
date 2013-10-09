@@ -1,18 +1,8 @@
 # Licensed under the Apache License. See footer for details.
 
-utils = require "../utils"
-
-coreName = utils.coreName __filename
-
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
-    mod.controller coreName, MessagesController
-
-    return
-
-#-------------------------------------------------------------------------------
-MessagesController = ($scope, Logger) ->
-    Logger.log "controller #{coreName} created"
+exports.controller = MessagesController = ($scope, Logger) ->
+    $scope.setSubtitle "messages"
 
     $scope.messages = Logger.getMessages()
 

@@ -1,18 +1,8 @@
 # Licensed under the Apache License. See footer for details.
 
-utils = require "../utils"
-
-coreName = utils.coreName __filename
-
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
-    mod.controller coreName, SettingsController
-
-    return
-
-#-------------------------------------------------------------------------------
-SettingsController = ($scope, Logger) ->
-    Logger.log "controller #{coreName} created"
+exports.controller = SettingsController = ($scope, Logger) ->
+    $scope.setSubtitle "settings"
 
     return
 

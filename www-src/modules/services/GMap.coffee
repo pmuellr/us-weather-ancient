@@ -4,22 +4,13 @@ events = require "events"
 
 _ = require "underscore"
 
-utils = require "../utils"
-
-coreName = utils.coreName __filename
-
-#-------------------------------------------------------------------------------
-module.exports = (mod) ->
-    mod.service coreName, GMapService
-
-    $ checkForGMapsLoaded()
-
 #-------------------------------------------------------------------------------
 
-Service = null
+Service     = null
+GMapLoaded  = false
 
 #-------------------------------------------------------------------------------
-class GMapService extends events.EventEmitter
+exports.service = class GMapService extends events.EventEmitter
 
     #---------------------------------------------------------------------------
     constructor: (@$window, @Logger) ->
@@ -43,12 +34,10 @@ class GMapService extends events.EventEmitter
             @panTo Marker.getPosition()
         return
 
-
 #-------------------------------------------------------------------------------
 
 USGeoCenter     = [39.828221, -98.579505]
 
-GMapLoaded      = false
 Geocoder        = null
 InfoWindow      = null
 MarkerLocation  = null
@@ -89,6 +78,18 @@ init = ->
 
         Service.emit "marker-moved", Marker.getPosition()
 
+    google.maps.event.addListener Map, "click", (mouseEvent) ->
+        return if !Service?
+
+        Marker.setPosition mouseEvent.latLng
+        Service.emit "marker-moved", mouseEvent.latLng
+
+
+#-------------------------------------------------------------------------------
+onMarkerMoved = (latLng) ->
+    Marker.setPosition latLng
+    Service.emit "marker-moved", latLng
+
 
 #-------------------------------------------------------------------------------
 checkForGMapsLoaded = ->
@@ -101,40 +102,11 @@ checkForGMapsLoaded = ->
 
     setTimeout checkForGMapsLoaded, 500
 
+#-------------------------------------------------------------------------------
+$ checkForGMapsLoaded()
+
 ###
-var map
-var marker
-var locationEntry
 
-//------------------------------------------------------------------------------
-function InitializeMap() {
-
-    var location   = new google.maps.LatLng(47.2, -121.3)
-    var mapElement = $(".map-canvas")[0]
-    var mapOptions = {
-        center:     location,
-        zoom:       3,
-        mapTypeId:  google.maps.MapTypeId.ROADMAP
-    }
-
-    map = new google.maps.Map(mapElement, mapOptions)
-
-    marker = new google.maps.Marker({
-        position:   location,
-        map:        map,
-        draggable:  true,
-        title:      'select a new us-weather location!'
-    })
-
-    google.maps.event.addListener(marker, "dragend", function() {
-        var latlng = marker.getPosition()
-        map.panTo(latlng)
-        getLocationName(latlng)
-    })
-
-    google.maps.event.addListener(map, "zoom_changed", function() {
-    })
-}
 
 //------------------------------------------------------------------------------
 function getLocationName(latlng) {

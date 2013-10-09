@@ -1,15 +1,7 @@
 # Licensed under the Apache License. See footer for details.
 
-utils = require "../utils"
-
-coreName = utils.coreName __filename
-
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
-    mod.service coreName, Logger
-
-#-------------------------------------------------------------------------------
-class Logger
+exports.service = class Logger
 
     #---------------------------------------------------------------------------
     constructor: () ->

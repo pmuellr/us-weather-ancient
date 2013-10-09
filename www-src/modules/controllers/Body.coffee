@@ -1,22 +1,9 @@
 # Licensed under the Apache License. See footer for details.
 
-utils = require "../utils"
 pkg   = require "../package.json"
 
-coreName = utils.coreName __filename
-
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
-
-    #$ ->
-    #    $(".navbar-collapse").collapse()
-
-    mod.controller coreName, BodyController
-
-    return
-
-#-------------------------------------------------------------------------------
-BodyController = ($scope, Logger) ->
+exports.controller = BodyController = ($scope, Logger) ->
 
     domReady = false
 
@@ -27,6 +14,15 @@ BodyController = ($scope, Logger) ->
 
     $scope.messages   = Logger.getMessages()
     $scope.pkg        = pkg
+
+    subTitle = ""
+
+    $scope.getSubtitle = -> 
+        return "" if subTitle is ""
+        return ": #{subTitle}"
+
+    $scope.setSubtitle = (s) -> 
+        subTitle = s
 
     $scope.$on "$routeChangeSuccess", (next, current) ->
         $(".navbar-collapse").collapse("hide") if domReady

@@ -154,13 +154,17 @@ runBuildMeat = (grunt, task) ->
 
     files2module "www-src/views", "#{modulesDir}/views.js"
 
-    browserify "--debug --outfile www/index.js #{modulesDir}/main.js"
+    if true
+        browserify "--debug --outfile www/index.js #{modulesDir}/main.js"
+        cp "-f", "www/index.js", "tmp/index.js"
+        coffee "tools/split-sourcemap-data-url.coffee www/index.js"
+    else
+        cjsify "--verbose --output www/index.js --source-map www/index.js.map --alias fs: --alias child_process: #{modulesDir}/main.js"
 
     mkdir "-p",                    "tmp/modules/client"
     cp    "-R", "#{modulesDir}/*", "tmp/modules/client"
     rm "-rf", modulesDir
 
-    coffee "tools/split-sourcemap-data-url.coffee www/index.js"
 
     mkdir "-p", "www/images"
     mkdir "-p", "www/vendor"
@@ -172,7 +176,7 @@ runBuildMeat = (grunt, task) ->
     rm "www/body.html"
 
     body = cat "www-src/body.html"
-    sed "-i", /<body>.*?<\/body>/, body, "www/index.html"
+    sed "-i", /%body%/, body, "www/index.html"
 
     key = cat "Google-Maps-API-key.txt"
     sed "-i", /%Google-Maps-API-key\.txt%/, key, "www/index.html"
@@ -200,14 +204,14 @@ ServerProcess = null
 
 #-------------------------------------------------------------------------------
 
-serverKill = (grunt, callback=->) ->
+serverKill = (grunt, callback) ->
     unless ServerProcess?
-        process.nextTick -> callback()
+        process.nextTick -> callback() if callback?
         return
 
     ServerProcess.once "exit", -> 
         ServerProcess = null
-        process.nextTick -> callback()
+        process.nextTick -> callback() if callback?
         return
 
     ServerProcess.kill()
@@ -249,6 +253,7 @@ runWatch = (grunt, fileName=null, watchers=[]) ->
         watchers.splice 0, watchers.length
         watchers.tripped = true
 
+    serverKill    grunt
     runBuild      grunt
     serverRestart grunt
 
@@ -273,6 +278,12 @@ runWatch = (grunt, fileName=null, watchers=[]) ->
         fs.watchFile watchFile, options, watchHandler
 
         watchers.push watchFile
+
+    fs.watchFile __filename, options, ->
+        serverKill grunt
+        grunt.log.writeln "#{path.basename __filename} changed; exiting"
+        process.exit 0
+        return
 
     return
 
@@ -407,11 +418,8 @@ align = (s, direction, length, pad=" ") ->
 
 createManifest = (dir, oFile) ->
     files = ls "-AR", dir
-
     files = _.reject files, (file) ->
         test "-d", path.join dir, file
-
-    files = files.join "\n"
 
     content = """
         CACHE MANIFEST
@@ -419,7 +427,7 @@ createManifest = (dir, oFile) ->
 
         CACHE:
 
-        #{files}
+        #{files.join "\n"}
 
         NETWORK:
         *
@@ -469,6 +477,12 @@ coffeec = (command) ->
 
 browserify = (command) ->
     exec "node_modules/.bin/browserify #{command}"
+    return
+
+#-------------------------------------------------------------------------------
+
+cjsify = (command) ->
+    exec "node_modules/.bin/cjsify #{command}"
     return
 
 #-------------------------------------------------------------------------------

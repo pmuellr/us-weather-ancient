@@ -1,20 +1,10 @@
 # Licensed under the Apache License. See footer for details.
 
-utils = require "../utils"
-
-coreName = utils.coreName __filename
-
 USGeoCenter = [39.828221, -98.579505]
 
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
-    mod.controller coreName, AddController
-
-    return
-
-#-------------------------------------------------------------------------------
 AddController = ($scope, Logger, GMap) ->
-    Logger.log "controller #{coreName} created"
+    $scope.setSubtitle "add a location"
 
     $scope.gmap = GMap
     
@@ -31,6 +21,9 @@ AddController = ($scope, Logger, GMap) ->
         getLocationName latlng
 
     return
+
+#-------------------------------------------------------------------------------
+exports.controller = AddController
 
 #-------------------------------------------------------------------------------
 getLocationName = (latlng) ->

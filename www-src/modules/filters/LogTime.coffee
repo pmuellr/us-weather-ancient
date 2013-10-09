@@ -5,17 +5,12 @@ utils = require "../utils"
 coreName = utils.coreName __filename
 
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
-
-    #---------------------------------------------------------------------------
-    mod.filter coreName, ->
-        (date) -> 
-            hh = right "#{date.getHours()}",   2, 0
-            mm = right "#{date.getMinutes()}", 2, 0
-            ss = right "#{date.getSeconds()}", 2, 0
-            return "#{hh}:#{mm}:#{ss}"
-
-    return        
+exports.filter = LogTimeFilter = ->
+    (date) -> 
+        hh = right "#{date.getHours()}",   2, 0
+        mm = right "#{date.getMinutes()}", 2, 0
+        ss = right "#{date.getSeconds()}", 2, 0
+        return "#{hh}:#{mm}:#{ss}"
 
 #-------------------------------------------------------------------------------
 right = (string, len, pad) ->

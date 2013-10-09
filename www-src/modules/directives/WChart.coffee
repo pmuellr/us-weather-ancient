@@ -1,44 +1,36 @@
 # Licensed under the Apache License. See footer for details.
 
-utils = require "../utils"
-
-coreName = utils.coreName __filename
-
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
+exports.directive = ->
+    restrict: "E"
 
-    #----------------------------------------------------------------------------
-    mod.directive coreName, ->
-        restrict: "E"
-        scope:
-            location: "="
-            width:    "@"
-            height:   "@"
+    scope:
+        location: "="
+        width:    "@"
+        height:   "@"
 
-        link: (scope, element, attrs) ->
-            graph = d3.select(element[0])
-                .append("svg")
-                .classed("WeatherChart", true)
-                .attr("width",  scope.width)
-                .attr("height", scope.height)
+    link: (scope, element, attrs) ->
+        graph = d3.select(element[0])
+            .append("svg")
+            .classed("WeatherChart", true)
+            .attr("width",  scope.width)
+            .attr("height", scope.height)
 
-            scope.$watch "location", (newLocation, oldLocation) ->
-                # return if newLocation.data.date is oldLocation.data.date
+        scope.$watch "location", (newLocation, oldLocation) ->
+            # return if newLocation.data.date is oldLocation.data.date
 
-                drawChart graph, newLocation
-                return
-
-            scope.$watch "width", (width) -> 
-                return if width is scope.width
-
-                graph.attr("width",  scope.width)
-                graph.attr("height", scope.height)
-                drawChart graph, scope.location
-                return
-
+            drawChart graph, newLocation
             return
 
-    return    
+        scope.$watch "width", (width) -> 
+            return if width is scope.width
+
+            graph.attr("width",  scope.width)
+            graph.attr("height", scope.height)
+            drawChart graph, scope.location
+            return
+
+        return
 
 #-------------------------------------------------------------------------------
 drawChart = (graph, location) ->

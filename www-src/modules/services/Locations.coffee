@@ -2,17 +2,10 @@
 
 _ = require "underscore"
 
-utils   = require "../utils"
 weather = require "../us-weather"
 
-coreName = utils.coreName __filename
-
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
-    mod.service coreName, LocationsService
-
-#-------------------------------------------------------------------------------
-class LocationsService
+exports.service = class LocationsService
 
     #---------------------------------------------------------------------------
     constructor: (@$window, @Logger) ->

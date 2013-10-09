@@ -58,9 +58,9 @@
 </head>
 
 <!-- ======================================================================= -->
-<body>filled in during build, sorry!</body>
+<body>
+%body%
 
-<!-- ======================================================================= -->
 <script src="vendor/jquery/jquery.min.js"></script>
 <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
 <script src="vendor/angular/angular.min.js"></script>
@@ -68,100 +68,7 @@
 <script src="//maps.googleapis.com/maps/api/js?key=%Google-Maps-API-key.txt%&sensor=false"></script>
 <script src="index.js"></script>
 
-<!--
-<script type="text/javascript">
-var geocoder
-var infoWindow
-var map
-var marker
-var locationEntry
-
-//------------------------------------------------------------------------------
-function InitializeMap() {
-    google.maps.visualRefresh = true
-
-    geocoder    = new google.maps.Geocoder()
-    infoWindow  = new google.maps.InfoWindow({content: "hello!"})
-
-    var location   = new google.maps.LatLng(47.2, -121.3)
-    var mapElement = $(".map-canvas")[0]
-    var mapOptions = {
-        center:     location,
-        zoom:       3,
-        mapTypeId:  google.maps.MapTypeId.ROADMAP
-    }
-
-    map = new google.maps.Map(mapElement, mapOptions)
-
-    marker = new google.maps.Marker({
-        position:   location,
-        map:        map,
-        draggable:  true,
-        title:      'select a new us-weather location!'
-    })
-
-    google.maps.event.addListener(marker, "dragend", function() {
-        var latlng = marker.getPosition()
-        map.panTo(latlng)
-        getLocationName(latlng)
-    })
-
-    google.maps.event.addListener(map, "zoom_changed", function() {
-    })
-}
-
-//------------------------------------------------------------------------------
-function getLocationName(latlng) {
-    geocoder.geocode({'latLng': latlng}, getLocationNameResult)
-}
-
-//------------------------------------------------------------------------------
-function getLocationNameResult(results, status) {
-    if (status != "OK") {
-        infoWindow.close()
-        return
-    }
-
-    console.log("-------------------------------------------------------------")
-    console.log("status:  " + JSON.stringify(status,  null, 4))
-
-    html = []
-    html.push("<p>select a location name")
-    html.push("<p><input class='locationInput'>")
-    html.push("<button class='locationAdd'>add</button>")
-    html.push("<p><select selectedIndex='-1' size='" + results.length + "' class='locationSelector'>")
-
-    for (var i=0; i<results.length; i++) {
-        var address = results[i].formatted_address
-        address = $('<div/>').text(address).html()
-
-        html.push("<option>" + address + "</option>")
-        console.log(i + ": " + address)
-    }
-
-    html.push("</select>")
-
-    infoWindow.setContent(html.join("\n"))  
-    infoWindow.open(map, marker)
-
-    $(".locationInput").val(results[0].formatted_address)
-
-    $(".locationSelector").change(function(event){
-        var index = event.target.selectedIndex
-        var locName = results[index].formatted_address
-        console.log("selected: " + locName)
-        $(".locationInput").val(locName)
-    })
-
-    $(".locationAdd").click(function(thing){
-        var locName = $(".locationInput").val()
-        infoWindow.close()
-        console.log("picked: " + locName)
-    })
-}
-</script>
--->
-
+</body>
 </html>
 
 <!-- 
