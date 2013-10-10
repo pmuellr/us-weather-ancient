@@ -1,7 +1,9 @@
 # Licensed under the Apache License. See footer for details.
 
+Messages = exports
+
 #-------------------------------------------------------------------------------
-exports.controller = MessagesController = ($scope, Logger) ->
+Messages.controller = ($scope, Logger) ->
     $scope.setSubtitle "messages"
 
     $scope.messages = Logger.getMessages()

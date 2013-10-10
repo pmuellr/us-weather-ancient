@@ -1,7 +1,9 @@
 # Licensed under the Apache License. See footer for details.
 
+Settings = exports
+
 #-------------------------------------------------------------------------------
-exports.controller = SettingsController = ($scope, Logger) ->
+Settings.controller = ($scope, Logger) ->
     $scope.setSubtitle "settings"
 
     return

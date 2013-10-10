@@ -2,8 +2,10 @@
 
 pkg   = require "../package.json"
 
+Body = exports
+
 #-------------------------------------------------------------------------------
-exports.controller = BodyController = ($scope, Logger) ->
+Body.controller = ($scope, Logger) ->
 
     domReady = false
 

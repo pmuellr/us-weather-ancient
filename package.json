@@ -34,10 +34,9 @@
   "devDependencies":
     {
       "browserify":       "2.33.x",
-      "coffee-script":    "1.6.x",
-      "commonjs-everywhere": "0.9.4",
       "grunt":            "0.4.x",
-      "shelljs":          "0.2.6"
+      "coffee-script":    "1.6.x",
+      "shelljs":          "0.2.x"
     },
   "homepage":          "https://github.com/pmuellr/us-weather",
   "bugs":              "https://github.com/pmuellr/us-weather/issues",

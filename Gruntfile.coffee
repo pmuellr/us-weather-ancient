@@ -13,10 +13,19 @@ module.exports = (grunt) ->
 
     grunt.initConfig
 
-        watch: [
-            "lib-src"
-            "www-src"
+        readWrite: [
+            "lib"
+            "www"
         ]
+
+        watch: 
+            dirs: [
+                "lib-src"
+                "www-src"
+            ]
+            run: (grunt) ->
+                runBuild grunt
+                runServe grunt
 
         clean: [
             "bower_components"
@@ -100,11 +109,10 @@ module.exports = (grunt) ->
 
 runBuild = (grunt, task) ->
     unless test "-d", "vendor"
-        grunt.log.writeln "installing vendor files since they aren't installed"
+        log grunt, "installing vendor files since they aren't installed"
         runVendor grunt, task
-        grunt.log.writeln ""
 
-    makeWriteable grunt, task
+    makeWritable  grunt, task
     runBuildMeat  grunt, task
     makeReadOnly  grunt, task
 
@@ -118,7 +126,7 @@ runBuildMeat = (grunt, task) ->
     rm "-rf", "tmp/modules" if test "-d", "tmp/modules"
 
     #----------------------------------
-    grunt.log.writeln "building server code in lib"
+    log grunt, "building server code in lib"
 
     mkdir "-p",  "lib"
     rm    "-rf", "lib/*"
@@ -131,7 +139,7 @@ runBuildMeat = (grunt, task) ->
     cp "-R", "lib/*", "tmp/modules/server"
 
     #----------------------------------
-    grunt.log.writeln "building client code in www"
+    log grunt, "building client code in www"
 
     mkdir "-p",  "www"
     rm    "-rf", "www/*"
@@ -187,7 +195,7 @@ runBuildMeat = (grunt, task) ->
     sed "-i", /<html manifest="index.appcache"/, '<html class="dev"', "www/index-dev.html"
 
     timeElapsed = Date.now() - timeStart
-    grunt.log.writeln "build time: #{timeElapsed/1000} sec"
+    log grunt, "build time: #{timeElapsed/1000} sec"
 
     return
 
@@ -200,41 +208,40 @@ runServe = (grunt) ->
 
 #-------------------------------------------------------------------------------
 
-ServerProcess = null
+ServerPidFile = path.join __dirname, "tmp", "server.pid"
 
 #-------------------------------------------------------------------------------
+serverKill = (grunt, cb) ->
 
-serverKill = (grunt, callback) ->
-    unless ServerProcess?
-        process.nextTick -> callback() if callback?
-        return
+    return false unless test "-f", ServerPidFile
 
-    ServerProcess.once "exit", -> 
-        ServerProcess = null
-        process.nextTick -> callback() if callback?
-        return
+    pid = cat ServerPidFile
+    pid = parseInt pid, 10
+    # log grunt, "killing the server, pid: #{pid}"
 
-    ServerProcess.kill()
-    return
+    try
+        process.kill pid
+    catch e
+        # log grunt, "error killing the server, already dead? pid: #{pid}, err: #{e}"
+
+    rm ServerPidFile
+    process.nextTick -> cb() if cb?
+
+    return true
 
 #-------------------------------------------------------------------------------
 
 serverStart = (grunt) ->
 
+    killed = serverKill grunt, -> serverStart grunt
+    return if killed
+
     options = 
         stdio: "inherit"
 
-    ServerProcess = child_process.spawn "node", ["server.js"], options
+    serverProcess = child_process.spawn "node", ["server.js"], options
 
-    return
-
-#-------------------------------------------------------------------------------
-
-serverRestart = (grunt) ->
-
-    serverKill grunt, -> 
-        serverStart grunt
-        return
+    serverProcess.pid.toString().to ServerPidFile
 
     return
 
@@ -243,8 +250,8 @@ runWatch = (grunt, fileName=null, watchers=[]) ->
     return if watchers.tripped
 
     if fileName
-        grunt.log.writeln "----------------------------------------------------"
-        grunt.log.writeln "file changed: #{fileName} on #{new Date}" 
+        log grunt, "----------------------------------------------------"
+        log grunt, "file changed: #{fileName} on #{new Date}" 
 
     if watchers.length
         for watcher in watchers
@@ -253,18 +260,28 @@ runWatch = (grunt, fileName=null, watchers=[]) ->
         watchers.splice 0, watchers.length
         watchers.tripped = true
 
-    serverKill    grunt
-    runBuild      grunt
-    serverRestart grunt
+    watchCfg   = grunt.config "watch"
+    watchDirs  = watchCfg.dirs
+    watchRun   = watchCfg.run
+
+    if !watchRun?
+        err grunt, "you didn't specify anything to run!"
+
+    try 
+        watchRun grunt
+    catch e
+        err grunt, "running watch meat: #{e}"
 
     watchFiles = []
-    watchDirs  = grunt.config "watch"
 
     for dir in watchDirs
         files = ls "-RA", dir
         files = _.map files, (file) -> path.join dir, file
 
         watchFiles = watchFiles.concat files
+
+    if _.isEmpty watchFiles
+        err grunt, "no files to watch!"
 
     watchers = []
     watchers.tripped = false
@@ -280,10 +297,11 @@ runWatch = (grunt, fileName=null, watchers=[]) ->
         watchers.push watchFile
 
     fs.watchFile __filename, options, ->
-        serverKill grunt
-        grunt.log.writeln "#{path.basename __filename} changed; exiting"
+        log grunt, "#{path.basename __filename} changed; exiting"
         process.exit 0
         return
+
+    log grunt, "watching #{1 + watchFiles.length} files for changes"
 
     return
 
@@ -301,7 +319,7 @@ getWatchHandler = (grunt, watchFile, watchers) ->
 runClean = (grunt) ->
     dirs = grunt.config "clean"
 
-    makeWritable()
+    makeWritable grunt
 
     for dir in dirs
         if test "-d", dir
@@ -334,12 +352,12 @@ runBower = (grunt, task) ->
         bower = "./node_modules/.bin/bower"
 
         unless test "-f", bower
-            grunt.log.writeln "installing bower locally since it's not installed globally"
+            log grunt, "installing bower locally since it's not installed globally"
             exec "npm install bower"
-            grunt.log.writeln ""
+            log grunt, ""
 
     exec "#{bower} install #{pkg}##{version}"
-    grunt.log.writeln ""
+    log grunt, ""
 
     for srcFile, dstDir of files
         mkdir "-p", dstDir
@@ -355,7 +373,7 @@ runIcons = (grunt) ->
     {dir, srcSize, dstSizes} = grunt.config "icons"
 
     if !which "convert"
-        grunt.log.writeln "ImageMagick convert not available, unable to create icons."
+        log grunt, "ImageMagick convert not available, unable to create icons."
         return
 
     srcSize = align "#{srcSize}", "right", 4, "0"
@@ -369,11 +387,11 @@ runIcons = (grunt) ->
 
         cmd = "convert #{resizeOption} #{srcFile} #{dstFile}"
 
-        grunt.log.writeln cmd
+        log grunt, cmd
         exec cmd
 
     if !which "iconutil"
-        grunt.log.writeln "iconutil not available, unable to create icns."
+        log grunt, "iconutil not available, unable to create icns."
         return
 
     mkdir "-p", "tmp/app.iconset"
@@ -392,27 +410,10 @@ runIcons = (grunt) ->
 
 
     cmd = "iconutil -c icns -o #{dir}/app.icns tmp/app.iconset"
-    grunt.log.writeln cmd
+    log grunt, cmd
     exec cmd
 
     return
-
-#-------------------------------------------------------------------------------
-align = (s, direction, length, pad=" ") ->
-
-    direction = direction.toUpperCase()[0]
-
-    if direction is "L"
-        doPad = (s) -> s + pad
-    else if direction is "R"
-        doPad = (s) -> pad + s
-    else
-        throw Error "invalid direction argument for align()"
-
-    while s.length < length
-        s = doPad s
-
-    return s
 
 #-------------------------------------------------------------------------------
 
@@ -487,21 +488,73 @@ cjsify = (command) ->
 
 #-------------------------------------------------------------------------------
 
-makeWriteable = ->
-    mkdir "-p", "www", "lib"
-    chmod "-R", "+w", "www"
-    chmod "-R", "+w", "lib"
+makeWritable = (grunt) ->
+    dirs = grunt.config "readWrite"
+
+    for dir in dirs
+        mkdir "-p", dir
+        chmod "-R", "+w", dir
 
     return
 
 #-------------------------------------------------------------------------------
 
-makeReadOnly = ->
-    mkdir "-p", "www", "lib"
-    chmod "-R", "-w", "www"
-    chmod "-R", "-w", "lib"
+makeReadOnly = (grunt) ->
+    dirs = grunt.config "readWrite"
+
+    for dir in dirs
+        mkdir "-p", dir
+        chmod "-R", "-w", dir
 
     return
+
+#-------------------------------------------------------------------------------
+getTime =  ->
+    date = new Date()
+    hh   = align.right date.getHours(),   2, 0
+    mm   = align.right date.getMinutes(), 2, 0
+
+    return "#{hh}:#{mm}"
+
+#-------------------------------------------------------------------------------
+err =  (grunt, message) ->
+    log grunt, "error: #{message}"
+    process.exit 1
+
+#-------------------------------------------------------------------------------
+log =  (grunt, message) ->
+    if !grunt?
+        throw Error "log(): grunt was null!"
+
+    if message is ""
+        grunt.log.writeln ""
+        return
+
+    grunt.log.writeln "#{getTime()} - #{message}"
+
+    return
+
+#-------------------------------------------------------------------------------
+align = (s, direction, length, pad=" ") ->
+    s   = "#{s}"
+    pad = "#{pad}"
+
+    direction = direction.toUpperCase()[0]
+
+    if direction is "L"
+        doPad = (s) -> s + pad
+    else if direction is "R"
+        doPad = (s) -> pad + s
+    else
+        throw Error "invalid direction argument for align()"
+
+    while s.length < length
+        s = doPad s
+
+    return s
+
+align.right = (s, length, pad=" ") -> align s, "right", length, pad
+align.left  = (s, length, pad=" ") -> align s, "left",  length, pad    
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

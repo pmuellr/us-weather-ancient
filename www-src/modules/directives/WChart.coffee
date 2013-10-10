@@ -1,7 +1,9 @@
 # Licensed under the Apache License. See footer for details.
 
+WChart = exports
+
 #-------------------------------------------------------------------------------
-exports.directive = ->
+WChart.directive = ->
     restrict: "E"
 
     scope:

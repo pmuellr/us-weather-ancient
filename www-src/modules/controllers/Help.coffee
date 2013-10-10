@@ -2,8 +2,10 @@
 
 builtOn = require "../built-on"
 
+Help = exports
+
 #-------------------------------------------------------------------------------
-exports.controller = HelpController = ($scope, Logger) ->
+Help.controller = ($scope, Logger) ->
     $scope.setSubtitle "help"
 
     $scope.builtOn = builtOn.date.toString()

@@ -1,11 +1,9 @@
 # Licensed under the Apache License. See footer for details.
 
-utils = require "../utils"
-
-coreName = utils.coreName __filename
+LogTime = exports
 
 #-------------------------------------------------------------------------------
-exports.filter = LogTimeFilter = ->
+LogTime.filter = ->
     (date) -> 
         hh = right "#{date.getHours()}",   2, 0
         mm = right "#{date.getMinutes()}", 2, 0

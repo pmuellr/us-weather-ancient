@@ -1,7 +1,9 @@
 # Licensed under the Apache License. See footer for details.
 
+Home = exports
+
 #-------------------------------------------------------------------------------
-exports.controller = HomeController = ($scope, Logger) ->
+Home.controller = ($scope, Logger) ->
     $scope.setSubtitle ""
 
     return
