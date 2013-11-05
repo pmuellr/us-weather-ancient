@@ -1,32 +1,9 @@
 # Licensed under the Apache License. See footer for details.
 
-USGeoCenter = [39.828221, -98.579505]
-
-Add = exports
-
-#-------------------------------------------------------------------------------
-Add.controller = ($scope, Logger, GMap) ->
-    $scope.setSubtitle "add a location"
-
-    $scope.gmap = GMap
-    
-    return if !GMap.isLoaded()
-
-    $(".map-container").show()
-    process.nextTick -> GMap.triggerResize()
-
-    $scope.$on "$destroy", ->
-        $(".map-container").hide()
-
-    GMap.on "marker-moved", (latlng)->
-        GMap.panTo latlng
-        getLocationName latlng
+AngTangle.controller settings = ($scope, Logger) ->
+    $scope.setSubtitle "settings"
 
     return
-
-#-------------------------------------------------------------------------------
-getLocationName = (latlng) ->
-    console.log "got lat lng: #{latlng}"
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

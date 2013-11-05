@@ -1,12 +1,19 @@
 # Licensed under the Apache License. See footer for details.
 
-Home = exports
+AngTangle.config ($routeProvider, views) ->
 
-#-------------------------------------------------------------------------------
-Home.controller = ($scope, Logger) ->
-    $scope.setSubtitle ""
+    addRoute = (name, url="/#{name}") ->
+        $routeProvider.when url,
+            controller: name
+            template:   views["views/#{name}"]        
 
-    return
+    $routeProvider.otherwise redirectTo:  "/"
+
+    addRoute "home", "/"
+    addRoute "add"
+    addRoute "messages"
+    addRoute "settings"
+    addRoute "help"
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

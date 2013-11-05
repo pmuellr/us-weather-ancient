@@ -1,5 +1,0 @@
-# Insert your Google Maps API Key here, 
-# and save the file as Google-Maps-API-key.txt
-#
-# Remove these comments.  The file should just
-# be a single line with the key.

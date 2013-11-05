@@ -1,33 +1,41 @@
 # Licensed under the Apache License. See footer for details.
 
-views = require "./views"
-
 #-------------------------------------------------------------------------------
-module.exports = (mod) ->
-
-    url_html = (name) -> ["/#{name}", "#{name}.html"]
-
-    routes = 
-        Home:       ["/",    "home.html"]
-        Add:        url_html "add"
-        Messages:   url_html "messages"
-        Settings:   url_html "settings"
-        Help:       url_html "help"
+AngTangle.service class Logger
 
     #---------------------------------------------------------------------------
-    mod.config ($routeProvider) ->
+    constructor: () ->
+        @_verbose  = false
+        @_messages = []
 
-        $routeProvider.otherwise 
-            redirectTo:  "/"
+    #---------------------------------------------------------------------------
+    getMessages: () ->
+        return @_messages
 
-        for controller, [url, html] of routes
-            $routeProvider.when url, 
-                controller:  controller
-                template:    views[html]
+    #---------------------------------------------------------------------------
+    verbose: (value) ->
+        return @_verbose if !value? 
+
+        @_verbose = !!value
+        return @_verbose
+
+    #---------------------------------------------------------------------------
+    log: (text) ->
+        date = new Date
+        @_messages.push {date, text}
 
         return
 
-    return
+    #---------------------------------------------------------------------------
+    vlog: (text) ->
+        return unless @_verbose
+
+        log text
+        return
+
+    #---------------------------------------------------------------------------
+    clear: ->
+        @_messages.splice 0, @_messages.length
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

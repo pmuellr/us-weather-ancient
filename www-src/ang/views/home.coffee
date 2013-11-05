@@ -1,10 +1,7 @@
 # Licensed under the Apache License. See footer for details.
 
-Settings = exports
-
-#-------------------------------------------------------------------------------
-Settings.controller = ($scope, Logger) ->
-    $scope.setSubtitle "settings"
+AngTangle.controller home = ($scope, Logger) ->
+    $scope.setSubtitle ""
 
     return
 

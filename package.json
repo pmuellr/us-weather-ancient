@@ -23,20 +23,21 @@
     ],
   "dependencies":
     {
-      "connect":          "2.9.x",
+      "connect":          "2.11.x",
+      "config-chain":     "1.1.x",
       "express":          "3.4.x",
       "htmlparser":       "1.7.x",
       "lru-cache":        "2.3.x",
+      "optimist":         "0.6.0",
       "passport":         "0.1.x",
       "soupselect":       "0.2.x",
       "underscore":       "1.5.x"
     },
   "devDependencies":
     {
-      "browserify":       "2.33.x",
-      "grunt":            "0.4.x",
-      "coffee-script":    "1.6.x",
-      "shelljs":          "0.2.x"
+      "ang-tangle":       "0.1.x",
+      "browserify":       "2.35.x",
+      "coffee-script":    "1.6.x"
     },
   "homepage":          "https://github.com/pmuellr/us-weather",
   "bugs":              "https://github.com/pmuellr/us-weather/issues",

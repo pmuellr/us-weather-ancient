@@ -14,6 +14,10 @@ body {
     height:     100%; 
 }
 
+.navbar {
+    z-index: 1;
+}
+
 .map-container { 
     position:           absolute;
     top:                0;
@@ -23,7 +27,7 @@ body {
 }
 
 .logo-128 {
-    background-image:   url(images/icon-0128.png);
+    background-image:   url(images/icon-512.png);
     width:              128px;
     height:             128px;
 }

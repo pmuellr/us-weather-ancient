@@ -5,70 +5,80 @@
 <html manifest="index.appcache" ng-app="app" lang="en">
 
 <!-- ======================================================================= -->
-<head>
-<title>us weather</title>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta       name="mobile-web-app-capable" content="yes">
 
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta       name="mobile-web-app-capable" content="yes">
+        <title>us weather</title>
 
-<link rel="shortcut icon"                href="images/icon-0032.png" sizes="32x32">
-<link rel="shortcut icon"                href="images/icon-0064.png" sizes="64x64">
-<link rel="shortcut icon"                href="images/icon-0128.png" sizes="128x128">
-<link rel="shortcut icon"                href="images/icon-0256.png" sizes="256x256">
-<link rel="shortcut icon"                href="images/icon-0512.png" sizes="512x512">
-<link rel="shortcut icon"                href="images/icon-1024.png" sizes="1024x1024">
+        <link rel="shortcut icon"                href="images/icon-512.png">
+        <link rel="icon"                         href="images/icon-512.png">
+        <link rel="apple-touch-icon-precomposed" href="images/icon-512.png">
 
-<link rel="icon"                         href="images/icon-0032.png" sizes="32x32">
-<link rel="icon"                         href="images/icon-0064.png" sizes="64x64">
-<link rel="icon"                         href="images/icon-0128.png" sizes="128x128">
-<link rel="icon"                         href="images/icon-0256.png" sizes="256x256">
-<link rel="icon"                         href="images/icon-0512.png" sizes="512x512">
-<link rel="icon"                         href="images/icon-1024.png" sizes="1024x1024">
+        <link rel="stylesheet" href="bower/bootstrap/css/bootstrap.css" />
+        <link rel="stylesheet" href="bower/bootstrap/css/bootstrap-theme.css" />
+        <!--[if lt IE 9]>
+            <script src="bower/bootstrap/js/html5shiv.js"></script>
+            <script src="bower/bootstrap/js/respond.min.js"></script>
+        <![endif]-->
 
-<link rel="apple-touch-icon-precomposed" href="images/icon-0032.png" sizes="32x32">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0057.png" sizes="57x57">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0064.png" sizes="64x64">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0072.png" sizes="72x72">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0076.png" sizes="76x76">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0096.png" sizes="96x96">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0114.png" sizes="114x114">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0128.png" sizes="128x128">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0120.png" sizes="120x120">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0144.png" sizes="144x144">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0152.png" sizes="152x152">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0256.png" sizes="256x256">
-<link rel="apple-touch-icon-precomposed" href="images/icon-0512.png" sizes="512x512">
-<link rel="apple-touch-icon-precomposed" href="images/icon-1024.png" sizes="1024x1024">
+        <link rel="stylesheet" href="bower/font-awesome/css/font-awesome.css">
+        <!--[if IE 7]>
+            <link rel="stylesheet" href="bower/font-awesome/css/font-awesome-ie7.min.css">
+        <![endif]-->
 
-<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css" />
-<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap-theme.min.css" />
-<!--[if lt IE 9]>
-    <script src="vendor/bootstrap/js/html5shiv.js"></script>
-    <script src="vendor/bootstrap/js/respond.min.js"></script>
-<![endif]-->
+        <link rel="stylesheet" href="index.css" />
+    </head>
 
-<link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
-<!--[if IE 7]>
-    <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome-ie7.min.css">
-<![endif]-->
+    <!-- =================================================================== -->
+    
+    <body ng-controller="body">
 
-<link rel="stylesheet" href="index.css" />
-</head>
+        <div class="navbar navbar-default nabar-static-top" role="navigation">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <span class="navbar-brand" href="#/">us-weather<span ng-bind="getSubtitle()"></span>
+            </div>    
 
-<!-- ======================================================================= -->
-<body>
-%body%
+            <div class="collapse navbar-collapse">
+                <ul class="nav navbar-nav navbar-right pull-right">
+                    <li><a href="#/">Home</a>
+                    <li><a href="#/add">Add Location</a>
+                    <li><a href="#/settings">Settings</a>
+                    <li><a href="#/messages">Messages 
+                        <span ng-show="messages.length" class="badge" ng-bind="messages.length"></span>
+                    </a>
+                    <li><a href="#/help">Help</a>
+                </ul>
+            </div>
+        </div>
 
-<script src="vendor/jquery/jquery.min.js"></script>
-<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
-<script src="vendor/angular/angular.min.js"></script>
-<script src="vendor/angular/angular-route.min.js"></script>
-<script src="//maps.googleapis.com/maps/api/js?key=%Google-Maps-API-key.txt%&sensor=false"></script>
-<script src="index.js"></script>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    <div ng-view></div>
+                </div>
+            </div>
+        </div>
 
-</body>
+        <div class="map-container" style="display:none">
+        </div>
+
+        <script src="bower/jquery/jquery.js"></script>
+        <script src="bower/bootstrap/js/bootstrap.js"></script>
+        <script src="bower/angular/angular.js"></script>
+        <script src="//maps.googleapis.com/maps/api/js?key=%gmapKey%&amp;sensor=false"></script>
+        <script src="node-modules.js"></script>
+        <script src="index.js"></script>
+
+    </body>
 </html>
 
 <!-- 

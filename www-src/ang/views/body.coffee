@@ -1,16 +1,28 @@
 # Licensed under the Apache License. See footer for details.
 
-builtOn = require "../built-on"
+AngTangle.controller body = ($scope, Logger, data) ->
 
-Help = exports
+    domReady = false
 
-#-------------------------------------------------------------------------------
-Help.controller = ($scope, Logger) ->
-    $scope.setSubtitle "help"
+    $ ->
+        domReady = true
 
-    $scope.builtOn = builtOn.date.toString()
+        $scope.isDev = $("html").hasClass "dev"
 
-    return
+    $scope.messages   = Logger.getMessages()
+    $scope.pkg        = data.pkg
+
+    subTitle = ""
+
+    $scope.getSubtitle = -> 
+        return "" if subTitle is ""
+        return ": #{subTitle}"
+
+    $scope.setSubtitle = (s) -> 
+        subTitle = s
+
+    $scope.$on "$routeChangeSuccess", (next, current) ->
+        $(".navbar-collapse").collapse("hide") if domReady
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

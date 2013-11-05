@@ -1,20 +1,32 @@
 # Licensed under the Apache License. See footer for details.
 
-LogTime = exports
+process = require "process"
+
+USGeoCenter = [39.828221, -98.579505]
 
 #-------------------------------------------------------------------------------
-LogTime.filter = ->
-    (date) -> 
-        hh = right "#{date.getHours()}",   2, 0
-        mm = right "#{date.getMinutes()}", 2, 0
-        ss = right "#{date.getSeconds()}", 2, 0
-        return "#{hh}:#{mm}:#{ss}"
+AngTangle.controller add = ($scope, Logger, GMap) ->
+    $scope.setSubtitle "add a location"
+
+    $scope.gmap = GMap
+    
+    return if !GMap.isLoaded()
+
+    $(".map-container").show()
+    process.nextTick -> GMap.triggerResize()
+
+    $scope.$on "$destroy", ->
+        $(".map-container").hide()
+
+    GMap.on "marker-moved", (latlng)->
+        GMap.panTo latlng
+        getLocationName latlng
+
+    return
 
 #-------------------------------------------------------------------------------
-right = (string, len, pad) ->
-    while string.length < len
-        string = "#{pad}#{string}"
-    return string
+getLocationName = (latlng) ->
+    console.log "got lat lng: #{latlng}"
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

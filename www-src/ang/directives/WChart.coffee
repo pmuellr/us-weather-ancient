@@ -1,9 +1,6 @@
 # Licensed under the Apache License. See footer for details.
 
-WChart = exports
-
-#-------------------------------------------------------------------------------
-WChart.directive = ->
+AngTangle.directive WChart = () ->
     restrict: "E"
 
     scope:

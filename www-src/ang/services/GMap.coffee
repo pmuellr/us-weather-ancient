@@ -1,16 +1,15 @@
 # Licensed under the Apache License. See footer for details.
 
-events = require "events"
-
-_ = require "underscore"
-
 #-------------------------------------------------------------------------------
+
+process = require "process"
+events  = require "events"
 
 Service     = null
 GMapLoaded  = false
 
 #-------------------------------------------------------------------------------
-exports.service = class GMapService extends events.EventEmitter
+AngTangle.service class GMapService extends events.EventEmitter
 
     #---------------------------------------------------------------------------
     constructor: (@$window, @Logger) ->
@@ -32,6 +31,7 @@ exports.service = class GMapService extends events.EventEmitter
         process.nextTick =>
             google.maps.event.trigger Map, "resize"
             @panTo Marker.getPosition()
+
         return
 
 #-------------------------------------------------------------------------------

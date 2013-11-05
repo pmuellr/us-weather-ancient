@@ -1,5 +1,6 @@
 # Licensed under the Apache License. See footer for details.
 
+fs   = require "fs"
 http = require "http"
 path = require "path"
 
@@ -22,10 +23,18 @@ WeatherCache = lruCache
     max:    CACHE_ENTRIES_MAX
     maxAge: CACHE_MAX_AGE_HRS * 1000 * 60 * 60
 
+IndexHTML    = fs.readFileSync path.join(WWWDIR, "index.html"),     "utf8"
+IndexDevHTML = fs.readFileSync path.join(WWWDIR, "index-dev.html"), "utf8"
+
 #-------------------------------------------------------------------------------
-main = ->
-    port = process.env.VCAP_APP_PORT or process.env.PORT or "3000"
-    port = parseInt port, 10
+exports.main = (options) ->
+    unless options.gmapKey?
+        logError "option `gmapKey` not used"
+
+    IndexHTML    = IndexHTML.replace    /%gmapKey%/g, options.gmapKey
+    IndexDevHTML = IndexDevHTML.replace /%gmapKey%/g, options.gmapKey
+
+    port = options.port
 
     favIcon = path.join WWWDIR, "images/icon-0032.png"
 
@@ -50,7 +59,11 @@ main = ->
 
     app.use connect.compress()
 
-    app.use "/",       express.static(WWWDIR)
+    app.get "/",               getIndexHtml IndexHTML
+    app.get "/index.html",     getIndexHtml IndexHTML
+    app.get "/index-dev.html", getIndexHtml IndexDevHTML
+
+    app.use "/", express.static(WWWDIR)
 
     log "starting server at http://localhost:#{port}"
 
@@ -63,6 +76,13 @@ permanentRedirectWithSlash = (path) ->
     return (request, response, next) ->
         return next() if request.path isnt path
         response.redirect 301, "#{path}/"
+
+#-------------------------------------------------------------------------------
+
+getIndexHtml = (content) ->
+    (request, response) ->
+        response.header "Content-Type:", "text/html"
+        response.send content
 
 #-------------------------------------------------------------------------------
 CORSify = (request, response, next) ->
@@ -173,9 +193,6 @@ alignRight = (string, length, pad) ->
         string = "#{pad}#{string}"
 
     string
-
-#-------------------------------------------------------------------------------
-main()
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

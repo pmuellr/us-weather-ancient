@@ -1,32 +1,27 @@
 # Licensed under the Apache License. See footer for details.
 
-weather = exports
+AngTangle.service class USWeather
 
-#-------------------------------------------------------------------------------
-weather.getLocations = (callback) ->
-    url = "/api/v1/weather-locations.json"
-    httpGet url, callback
-    return
+    #---------------------------------------------------------------------------
+    getLocations: (callback) ->
+        url = "/api/v1/weather-locations.json"
+        httpGet url, callback
 
-#-------------------------------------------------------------------------------
-weather.getWeatherByZip = (zipcode, callback) ->
-    url = "/api/v1/weather-by-zip/#{zipcode}.json"
+    #---------------------------------------------------------------------------
+    getWeatherByZip: (zipcode, callback) ->
+        url = "/api/v1/weather-by-zip/#{zipcode}.json"
 
-    httpGet url, (err, data) ->
-        return callback err if err?
-        callback null, data2series data
+        httpGet url, (err, data) ->
+            return callback err if err?
+            callback null, data2series data
 
-    return
+    #---------------------------------------------------------------------------
+    getWeatherByGeo: (lat, lon, callback) ->
+        url = "/api/v1/weather-by-geo/#{lat},#{lon}.json"
 
-#-------------------------------------------------------------------------------
-weather.getWeatherByGeo = (lat, lon, callback) ->
-    url = "/api/v1/weather-by-geo/#{lat},#{lon}.json"
-
-    httpGet url, (err, data) ->
-        return callback err if err?
-        callback null, data2series data
-        
-    return
+        httpGet url, (err, data) ->
+            return callback err if err?
+            callback null, data2series data
 
 #-------------------------------------------------------------------------------
 data2series = (data) ->

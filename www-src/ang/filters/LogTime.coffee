@@ -1,33 +1,17 @@
 # Licensed under the Apache License. See footer for details.
 
-pkg   = require "../package.json"
-
-Body = exports
+AngTangle.filter LogTime = () ->
+    (date) -> 
+        hh = right "#{date.getHours()}",   2, 0
+        mm = right "#{date.getMinutes()}", 2, 0
+        ss = right "#{date.getSeconds()}", 2, 0
+        return "#{hh}:#{mm}:#{ss}"
 
 #-------------------------------------------------------------------------------
-Body.controller = ($scope, Logger) ->
-
-    domReady = false
-
-    $ ->
-        domReady = true
-
-        $scope.isDev = $("html").hasClass "dev"
-
-    $scope.messages   = Logger.getMessages()
-    $scope.pkg        = pkg
-
-    subTitle = ""
-
-    $scope.getSubtitle = -> 
-        return "" if subTitle is ""
-        return ": #{subTitle}"
-
-    $scope.setSubtitle = (s) -> 
-        subTitle = s
-
-    $scope.$on "$routeChangeSuccess", (next, current) ->
-        $(".navbar-collapse").collapse("hide") if domReady
+right = (string, len, pad) ->
+    while string.length < len
+        string = "#{pad}#{string}"
+    return string
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

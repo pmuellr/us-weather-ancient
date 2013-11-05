@@ -1,26 +1,6 @@
 # Licensed under the Apache License. See footer for details.
 
-path = require "path"
-
-utils = exports
-
-#-------------------------------------------------------------------------------
-utils.dump = (text) ->
-    $log = $ "#log"
-    $log.text text
-    $log.show()
-
-#-------------------------------------------------------------------------------
-utils.log = (text) ->
-    $log = $ "#log"
-    $log.text "#{$log.text()}\n#{text}"
-    $log.show()
-
-#-------------------------------------------------------------------------------
-utils.coreName = (fileName) ->
-    fileName = path.basename fileName
-
-    return fileName.split(".")[0]
+AngTangle.module "app", []
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

@@ -1,11 +1,7 @@
 # Licensed under the Apache License. See footer for details.
 
-_ = require "underscore"
-
-weather = require "../us-weather"
-
 #-------------------------------------------------------------------------------
-exports.service = class LocationsService
+AngTangle.service class LocationsService
 
     #---------------------------------------------------------------------------
     constructor: (@$window, @Logger) ->

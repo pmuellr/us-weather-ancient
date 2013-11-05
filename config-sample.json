@@ -1,0 +1,7 @@
+{ 
+    "-": "this is a sample config.json file; needs a gmapKey",
+
+    "port":    4001,
+    "verbose": true,
+    "gmapKey": null
+}

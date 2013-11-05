@@ -1,10 +1,14 @@
-#!/usr/bin/env node
+# Licensed under the Apache License. See footer for details.
 
-// Licensed under the Apache License. See footer for details.
+AngTangle.controller messages = ($scope, Logger) ->
+    $scope.setSubtitle "messages"
 
-require("./lib/cli").run()
+    $scope.messages = Logger.getMessages()
 
-/*
+    $scope.clear = -> Logger.clear()
+
+    return
+
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
 # 
@@ -20,4 +24,3 @@ require("./lib/cli").run()
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #-------------------------------------------------------------------------------
-*/

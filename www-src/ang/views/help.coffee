@@ -1,14 +1,9 @@
 # Licensed under the Apache License. See footer for details.
 
-Messages = exports
+AngTangle.controller help = ($scope, Logger, data) ->
+    $scope.setSubtitle "help"
 
-#-------------------------------------------------------------------------------
-Messages.controller = ($scope, Logger) ->
-    $scope.setSubtitle "messages"
-
-    $scope.messages = Logger.getMessages()
-
-    $scope.clear = -> Logger.clear()
+    $scope.builtOn = new Date(data.builtOn.date)
 
     return
 
