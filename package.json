@@ -1,10 +1,6 @@
 {
   "name":              "us-weather",
-  "main":              "./lib/weather",
-  "bin":
-    {
-      "us-weather":    "./lib/us-weather.js"
-    },
+  "main":              "./lib/us-weather",
   "engines": 
     {
       "node":          ">=0.8",

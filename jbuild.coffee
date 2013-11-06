@@ -112,8 +112,10 @@ taskBuild = ->
         --debug
     """.replace /\s+/g, " "
 
-    process.nextTick ->
+    splitSourceMap = ->
         coffee "tools/split-sourcemap-data-url.coffee www/node-modules.js"
+
+    setTimeout splitSourceMap, 200
 
     taskBower() unless test "-d", "bower_components"
 
@@ -132,7 +134,7 @@ taskBuild = ->
     sed "-i", /<html manifest="index.appcache"/, '<html class="dev"', "www/index-dev.html"
 
     timeElapsed = Date.now() - timeStart
-    log "build time: #{timeElapsed/1000} sec"
+    # log "build time: #{timeElapsed/1000} sec"
 
     return
 

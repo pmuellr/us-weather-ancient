@@ -86,6 +86,9 @@ help = ->
     process.exit 1
 
 #-------------------------------------------------------------------------------
+exports.run() if require.main is module
+
+#-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
