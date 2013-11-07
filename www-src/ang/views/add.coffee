@@ -20,13 +20,8 @@ AngTangle.controller add = ($scope, Logger, GMap) ->
 
     GMap.on "marker-moved", (latlng)->
         GMap.panTo latlng
-        getLocationName latlng
 
     return
-
-#-------------------------------------------------------------------------------
-getLocationName = (latlng) ->
-    console.log "got lat lng: #{latlng}"
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

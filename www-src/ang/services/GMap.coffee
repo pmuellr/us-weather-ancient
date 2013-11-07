@@ -6,16 +6,21 @@
 
 process = require "process"
 events  = require "events"
+_       = require "underscore"
 
 Service     = null
 GMapLoaded  = false
+
+Logger = null
+setLogger = (value) -> Logger = value
 
 #-------------------------------------------------------------------------------
 AngTangle.service class GMapService extends events.EventEmitter
 
     #---------------------------------------------------------------------------
-    constructor: (@$window, @Logger) ->
+    constructor: (@$window, Logger) ->
         Service = @
+        setLogger Logger
 
     #---------------------------------------------------------------------------
     isLoaded: ->
@@ -38,11 +43,17 @@ AngTangle.service class GMapService extends events.EventEmitter
 
 #-------------------------------------------------------------------------------
 
-USGeoCenter     = [39.828221, -98.579505]
+try
+    storedLatLng = JSON.parse localStorage.getItem "LastMarkerLatLng"
+catch e
+
+if storedLatLng?
+    MarkerLatLng = new google.maps.LatLng storedLatLng.lat, storedLatLng.lng
+else
+    MarkerLatLng = new google.maps.LatLng 39.828221, -98.579505
 
 Geocoder        = null
 InfoWindow      = null
-MarkerLocation  = null
 Map             = null
 Marker          = null
 
@@ -53,13 +64,11 @@ init = ->
     Geocoder    = new google.maps.Geocoder()
     InfoWindow  = new google.maps.InfoWindow {content: ""}
 
-    MarkerLocation   = new google.maps.LatLng USGeoCenter[0], USGeoCenter[1]
-
     mapElement = $(".map-container")[0]
 
     mapOptions =
-        center:             MarkerLocation
-        zoom:               3
+        center:             MarkerLatLng
+        zoom:               5
         mapTypeId:          google.maps.MapTypeId.ROADMAP
         panControl:         false
         mapTypeControl:     false
@@ -71,7 +80,7 @@ init = ->
     Map = new google.maps.Map mapElement, mapOptions
 
     Marker = new google.maps.Marker
-        position:   MarkerLocation
+        position:   MarkerLatLng
         map:        Map
         draggable:  true
         title:      'select a new us-weather location!'
@@ -79,20 +88,80 @@ init = ->
     google.maps.event.addListener Marker, "dragend", ->
         return if !Service?
 
-        Service.emit "marker-moved", Marker.getPosition()
+        onMarkerMoved Marker.getPosition()
 
     google.maps.event.addListener Map, "click", (mouseEvent) ->
         return if !Service?
 
-        Marker.setPosition mouseEvent.latLng
-        Service.emit "marker-moved", mouseEvent.latLng
-
+        onMarkerMoved mouseEvent.latLng
 
 #-------------------------------------------------------------------------------
 onMarkerMoved = (latLng) ->
     Marker.setPosition latLng
-    Service.emit "marker-moved", latLng
+    Geocoder.geocode {latLng}, getGeocodeResult 
 
+    storedLatLng = 
+        lat: latLng.lat()
+        lng: latLng.lng()
+
+    localStorage.setItem "LastMarkerLatLng", JSON.stringify storedLatLng
+
+#-------------------------------------------------------------------------------
+getGeocodeResult = (result, status) ->
+    # console.log "geocode status: #{status}"
+    # console.log "geocode result: #{JSON.stringify result, null, 4}"
+
+    if status isnt "OK"
+        # Logger.log "error with geocode: #{status}: #{JSON.stringify result, null, 4}"
+        return
+
+    addresses = _.filter result, (address) ->
+        for component in address.address_components
+            continue unless component.types[0]   is "country"
+            continue unless component.types[1]   is "political"
+            continue unless component.short_name is "US"
+            return true
+
+        return false
+
+
+    shortAddresses = []
+
+    for address in addresses
+        state  = null
+        areas  = []
+
+        for component in address.address_components
+            if component.types[0] is "administrative_area_level_1"
+                state = component.short_name
+
+            if component.types[0] is "administrative_area_level_2"
+                continue if component.short_name.length is 1
+                areas.push component.short_name
+
+            if component.types[0] is "administrative_area_level_3"
+                continue if component.short_name.length is 1
+                areas.push component.short_name
+
+            if component.types[0] is "locality"
+                continue if component.short_name.length is 1
+                areas.push component.short_name
+
+        if state
+            for area in areas
+                shortAddresses.push "#{area}, #{state}"
+                shortAddresses.push "#{area}"
+
+    addresses = shortAddresses
+    addresses = _.uniq addresses
+
+    console.log ""
+    console.log "addresses:"
+    console.log "-----------------------------------"
+    console.log "(none)" if addresses.length is 0
+
+    for address in addresses
+        console.log "address: #{address}"
 
 #-------------------------------------------------------------------------------
 checkForGMapsLoaded = ->

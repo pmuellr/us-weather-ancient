@@ -7,7 +7,7 @@ AngTangle.controller settings = ($scope, Logger) ->
         abort:     -> wrapped Logger, "abort"
         update:    -> wrapped Logger, "update"
         swapCache: -> wrapped Logger, "swapCache"
-        reload:    -> window.location.reload()
+        reload:    -> window.location.reload(true)
     return
 
 #-------------------------------------------------------------------------------
