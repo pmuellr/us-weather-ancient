@@ -46,30 +46,74 @@ exports.main = (options) ->
     # app.use setImage(cfsImage)
     # app.use setOptions(options)
 
+    if options.verbose
+        app.use express.logger (tokens, request, response) ->
+            method = request.method.slice(0,3)
+            status = "#{response.statusCode}"
+
+            method = alignLeft  method, 3, " "
+            status = alignRight status, 3, "0"
+
+            "#{PROGRAM}: #{logDate()} #{status} #{method} #{request.url}"
+
     app.use express.favicon(favIcon)
 
     # app.use express.json(strict: false)
     # app.use express.urlencoded()
 
-    app.get "/api/v1/weather-locations.json",        CORSify, logRequest, getLocations
-    app.get "/api/v1/weather-by-geo/:lat,:lon.json", CORSify, logRequest, getWeatherByGeo
-    app.get "/api/v1/weather-by-zip/:zip.json",      CORSify, logRequest, getWeatherByZip
+    app.get "/api/v1/weather-locations.json",        CORSify, getLocations
+    app.get "/api/v1/weather-by-geo/:lat,:lon.json", CORSify, getWeatherByGeo
+    app.get "/api/v1/weather-by-zip/:zip.json",      CORSify, getWeatherByZip
 
     app.use express.errorHandler(dumpExceptions: true)
-
-    app.use connect.compress()
 
     app.get "/",               getIndexHtml IndexHTML
     app.get "/index.html",     getIndexHtml IndexHTML
     app.get "/index-dev.html", getIndexHtml IndexDevHTML
 
-    app.use "/", express.static(WWWDIR)
+    app.use "/", gzippedStatic  WWWDIR
+    app.use "/", express.static WWWDIR
 
     log "starting server at http://localhost:#{port}"
 
     app.listen port
 
     setInterval cleanCache, CACHE_GC_MINS * 1000 * 60
+
+#-------------------------------------------------------------------------------
+gzippedMap = {}
+
+gzippedStatic = (wwwDir) ->
+    return (request, response, next) ->
+        gzFile = path.join wwwDir, "gz", "#{request.path}"
+
+        unless gzippedMap[gzFile]?
+            gzippedMap[gzFile] = 
+                exists: fs.existsSync gzFile
+
+        return next() unless gzippedMap[gzFile].exists
+
+        acceptEncoding = request.get "Accept-Encoding"
+        return next() unless acceptEncoding?
+
+        match = acceptEncoding.match /gzip/
+        return next() unless match?
+
+        response.set "Content-Encoding", "gzip"
+
+        varyHeader = response.get("Vary") || ""
+
+        if "" is varyHeader
+            vary = "Accept-Encoding"
+        else if -1 is vary.indexOf "Accept-Encoding"
+            vary = "#{vary}, Accept-Encoding"
+
+        response.set "Vary", vary if vary?
+
+        # rewrite the URL
+        request.url = "/gz#{request.url}"
+
+        return next()
 
 #-------------------------------------------------------------------------------
 permanentRedirectWithSlash = (path) ->
@@ -188,7 +232,20 @@ logDate = () ->
     return result
 
 #-------------------------------------------------------------------------------
+alignLeft = (string, length, pad) ->
+    string = "#{string}"
+    pad    = "#{pad}"
+
+    while string.length < length
+        string = "#{string}#{pad}"
+
+    string
+
+#-------------------------------------------------------------------------------
 alignRight = (string, length, pad) ->
+    string = "#{string}"
+    pad    = "#{pad}"
+
     while string.length < length
         string = "#{pad}#{string}"
 

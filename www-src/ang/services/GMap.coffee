@@ -1,6 +1,8 @@
 # Licensed under the Apache License. See footer for details.
 
 #-------------------------------------------------------------------------------
+# info: https://developers.google.com/maps/documentation/javascript/
+#-------------------------------------------------------------------------------
 
 process = require "process"
 events  = require "events"
@@ -56,14 +58,15 @@ init = ->
     mapElement = $(".map-container")[0]
 
     mapOptions =
-        center:         MarkerLocation
-        zoom:           3
-        mapTypeId:      google.maps.MapTypeId.ROADMAP
-        panControl:     false
-        mapTypeControl: false
-        zoomControl:    true
+        center:             MarkerLocation
+        zoom:               3
+        mapTypeId:          google.maps.MapTypeId.ROADMAP
+        panControl:         false
+        mapTypeControl:     false
+        streetViewControl:  false
+        zoomControl:        true
         zoomControlOptions:
-            position:   google.maps.ControlPosition.LEFT_CENTER
+            position:       google.maps.ControlPosition.LEFT_CENTER
 
     Map = new google.maps.Map mapElement, mapOptions
 

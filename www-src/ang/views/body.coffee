@@ -10,7 +10,7 @@ AngTangle.controller body = ($scope, Logger, data) ->
         $scope.isDev = $("html").hasClass "dev"
 
     $scope.messages   = Logger.getMessages()
-    $scope.pkg        = data.pkg
+    $scope.pkg        = data.package
 
     subTitle = ""
 

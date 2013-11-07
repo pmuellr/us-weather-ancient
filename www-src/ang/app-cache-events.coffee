@@ -1,22 +1,28 @@
 # Licensed under the Apache License. See footer for details.
 
-AngTangle.controller settings = ($scope, Logger) ->
-    $scope.setSubtitle "settings"
+AngTangle.run (Logger, $rootScope) ->
 
-    $scope.appCache = 
-        abort:     -> wrapped Logger, "abort"
-        update:    -> wrapped Logger, "update"
-        swapCache: -> wrapped Logger, "swapCache"
-        reload:    -> window.location.reload()
-    return
+    appCache = window?.applicationCache
+    return unless appCache?
 
-#-------------------------------------------------------------------------------
-wrapped = (Logger, name) ->
-    try 
-        window.applicationCache[name]()
-    catch e
-        Logger.log "excepting running window.applicationCache.#{name}(): #{e}"
+    addEventListener = (eventName) ->
+        appCache.addEventListener eventName, (event) ->
+            if eventName is "progress"
+                message = ": #{event.loaded}/#{event.total}"
+            else 
+                message = ""
 
+            Logger.log "appCache: #{eventName}#{message}"
+            $rootScope.$digest()
+
+    addEventListener "checking"
+    addEventListener "error"
+    addEventListener "noupdate"
+    addEventListener "downloading"
+    addEventListener "progress"
+    addEventListener "updateready"
+    addEventListener "cached"
+    addEventListener "obsolete"
 
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

@@ -21,6 +21,7 @@
     {
       "connect":          "2.11.x",
       "config-chain":     "1.1.x",
+      "d3":               "3.3.x",
       "express":          "3.4.x",
       "htmlparser":       "1.7.x",
       "lru-cache":        "2.3.x",

@@ -4,6 +4,7 @@
 
 fs            = require "fs"
 path          = require "path"
+zlib          = require "zlib"
 child_process = require "child_process"
 
 _ = require "underscore"
@@ -26,6 +27,21 @@ Config =
         "tmp"
     ]
 
+    browserify: [
+        "d3"
+        "events"
+        "process"
+        "path"
+        "util"
+        "underscore"
+    ]
+
+    gzip: [
+        /.*\.css$/
+        /.*\.js$/
+        /.*\.svg$/
+    ]
+
     bower:
         jquery:
             version: "2.0.x"
@@ -44,14 +60,6 @@ Config =
                 "dist/css/bootstrap-theme.css": "css"
                 "dist/fonts/*":                 "fonts"
                 "dist/js/bootstrap.js":         "js"
-                
-        "font-awesome": 
-            version: "3.2.x"
-            files:
-                "css/font-awesome.css":         "css"
-                "css/font-awesome-ie7.css":     "css"
-                "font/*":                       "font"
-
 
 #-------------------------------------------------------------------------------
 exports.build =
@@ -103,19 +111,17 @@ taskBuild = ->
     cp "package.json",         "tmp/ang"
     createBuiltOn              "tmp/ang/builtOn.json"
 
+    log "ang-tangle tmp/ang www/index.js"
     angTangle "tmp/ang www/index.js"
-    browserify """
-        --require process
-        --require events
-        --require underscore
-        --outfile www/node-modules.js
-        --debug
-    """.replace /\s+/g, " "
 
-    splitSourceMap = ->
-        coffee "tools/split-sourcemap-data-url.coffee www/node-modules.js"
+    args = _.map Config.browserify, (module) -> "--require #{module}"
+    args.push "--outfile www/node-modules.js"
+    args.push "--debug"
 
-    setTimeout splitSourceMap, 200
+    log "browserify'ing: #{Config.browserify.join " "}"
+    browserify args.join " "
+
+    coffee "tools/split-sourcemap-data-url.coffee www/node-modules.js"
 
     taskBower() unless test "-d", "bower_components"
 
@@ -130,11 +136,27 @@ taskBuild = ->
 
     createManifest "www", "www/index.appcache"   
 
+    wwwFiles = ls "-R", "www"
+
+    gzipped = 0
+    for file in wwwFiles
+        wwwFile = path.join "www", file
+        for pattern in Config.gzip
+            if wwwFile.match pattern
+                gzFile = path.join "www", "gz", file
+
+                mkdir "-p", path.dirname gzFile
+                gzipFile wwwFile, gzFile
+
+                gzipped++
+
+    log "gzip'd #{gzipped} files"
+
     cp "www/index.html", "www/index-dev.html"
     sed "-i", /<html manifest="index.appcache"/, '<html class="dev"', "www/index-dev.html"
 
     timeElapsed = Date.now() - timeStart
-    # log "build time: #{timeElapsed/1000} sec"
+    log "build time: #{timeElapsed/1000} sec"
 
     return
 
@@ -167,7 +189,6 @@ taskClean = ->
             rm "-rf", dir
 
 #-------------------------------------------------------------------------------
-
 taskBower = ->
     cleanDir "bower_components"
 
@@ -179,6 +200,15 @@ taskBower = ->
         log ""
 
 #-------------------------------------------------------------------------------
+gzipFile = (iFile, oFile) ->
+    gzip = zlib.createGzip()
+
+    iStream = fs.createReadStream  iFile
+    oStream = fs.createWriteStream oFile
+
+    iStream.pipe(gzip).pipe(oStream)
+
+#-------------------------------------------------------------------------------
 cleanDir = (dirs...) ->
     for dir in dirs
         mkdir "-p",  dir
@@ -188,7 +218,10 @@ cleanDir = (dirs...) ->
 createManifest = (dir, oFile) ->
     files = ls "-AR", dir
     files = _.reject files, (file) ->
-        test "-d", path.join dir, file
+        return true if test "-d", path.join dir, file
+        return true if file.match /\.map$/
+        return true if file.match /\.map\.json$/
+        return false
 
     content = """
         CACHE MANIFEST
