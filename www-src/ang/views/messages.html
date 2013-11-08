@@ -1,15 +1,26 @@
-<div ng-show="messages.length">
-    <button class="btn btn-primary" ng-click="clear()">clear</button>
-</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <form class="form-inline" role="form">
+            <button class="btn btn-primary" ng-click="clear()" ng-disabled="!messages.length">
+                clear
+            </button>
 
-<div ng-hide="messages.length" class="alert alert-info">
-    no messages
-</div>
+            <span style="margin-left:2em;"> show: </span>
 
-<p>
+            <label class="checkbox-inline"><input type="checkbox"> verbose </label>
+            <label class="checkbox-inline"><input type="checkbox"> appCache </label>
+        </form>
 
-<table class="table table-striped">
-    <tr ng-repeat="message in messages">
-        <td>{{message.date | LogTime}}
-        <td width="100%">{{message.text}}
-</table>
+    </div>
+    <div class="panel-body">
+        <div ng-hide="messages.length" class="alert alert-info">
+            no messages
+        </div>
+        
+        <table ng-show="messages.length" class="table table-striped">
+            <tr ng-repeat="message in messages">
+                <td>{{message.date | LogTime}}
+                <td width="100%">{{message.text}}
+        </table>
+    </div>
+

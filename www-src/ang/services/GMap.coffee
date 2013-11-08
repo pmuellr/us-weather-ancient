@@ -14,13 +14,31 @@ GMapLoaded  = false
 Logger = null
 setLogger = (value) -> Logger = value
 
+$rootScope = null
+set$rootScope = (value) -> $rootScope = value
+
+InfoWindowBusyHTML  = """
+    <div>
+        <p><p><p><p><p><p><p>
+    </div>
+"""
+
+InfoWindowErrorHTML = """
+    <div class='gmap-iw'>
+        <h5>adding location</h5>
+        <h3 class='gmap-iw-error'>invalid location</h3>
+    </div>
+"""
+
 #-------------------------------------------------------------------------------
 AngTangle.service class GMapService extends events.EventEmitter
 
     #---------------------------------------------------------------------------
-    constructor: (@$window, Logger) ->
+    constructor: (@$window, Logger, $rootScope) ->
         Service = @
-        setLogger Logger
+
+        setLogger     Logger
+        set$rootScope $rootScope
 
     #---------------------------------------------------------------------------
     isLoaded: ->
@@ -62,7 +80,7 @@ init = ->
     google.maps.visualRefresh = true
 
     Geocoder    = new google.maps.Geocoder()
-    InfoWindow  = new google.maps.InfoWindow {content: ""}
+    InfoWindow  = new google.maps.InfoWindow {content: InfoWindowBusyHTML}
 
     mapElement = $(".map-container")[0]
 
@@ -85,6 +103,8 @@ init = ->
         draggable:  true
         title:      'select a new us-weather location!'
 
+    onMarkerMoved(MarkerLatLng)
+
     google.maps.event.addListener Marker, "dragend", ->
         return if !Service?
 
@@ -95,10 +115,16 @@ init = ->
 
         onMarkerMoved mouseEvent.latLng
 
+    InfoWindow.open Map, Marker
+
+    google.maps.event.addListener InfoWindow, "closeclick", ->
+        InfoWindow.open Map, Marker        
+
 #-------------------------------------------------------------------------------
 onMarkerMoved = (latLng) ->
     Marker.setPosition latLng
     Geocoder.geocode {latLng}, getGeocodeResult 
+    # InfoWindow.setContent InfoWindowBusyHTML
 
     storedLatLng = 
         lat: latLng.lat()
@@ -112,7 +138,7 @@ getGeocodeResult = (result, status) ->
     # console.log "geocode result: #{JSON.stringify result, null, 4}"
 
     if status isnt "OK"
-        # Logger.log "error with geocode: #{status}: #{JSON.stringify result, null, 4}"
+        InfoWindow.setContent InfoWindowErrorHTML
         return
 
     addresses = _.filter result, (address) ->
@@ -123,7 +149,6 @@ getGeocodeResult = (result, status) ->
             return true
 
         return false
-
 
     shortAddresses = []
 
@@ -155,13 +180,25 @@ getGeocodeResult = (result, status) ->
     addresses = shortAddresses
     addresses = _.uniq addresses
 
-    console.log ""
-    console.log "addresses:"
-    console.log "-----------------------------------"
-    console.log "(none)" if addresses.length is 0
+    if addresses.length is 0
+        InfoWindow.setContent InfoWindowErrorHTML
+        return
+
+    iContent = []
+    iContent.push """
+        <div class='gmap-iw'>
+            <h5>adding location</h5>
+            <h3>click one of the names to add the location</h3>
+    """
 
     for address in addresses
-        console.log "address: #{address}"
+        iContent.push "<button type='button'>#{address}</button>"
+
+    iContent.push "</div>"
+
+    InfoWindow.setContent iContent.join "\n"
+
+    $rootScope.$broadcast "location-selected", "some data"
 
 #-------------------------------------------------------------------------------
 checkForGMapsLoaded = ->

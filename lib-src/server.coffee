@@ -31,12 +31,12 @@ exports.main = (options) ->
     unless options.gmapKey?
         logError "option `gmapKey` not used"
 
-    IndexHTML    = IndexHTML.replace    /%gmapKey%/g, options.gmapKey
-    IndexDevHTML = IndexDevHTML.replace /%gmapKey%/g, options.gmapKey
+    indexHTML    = IndexHTML.replace    /%gmapKey%/g, options.gmapKey
+    indexDevHTML = IndexDevHTML.replace /%gmapKey%/g, options.gmapKey
 
     port = options.port
 
-    favIcon = path.join WWWDIR, "images/icon-0032.png"
+    favIcon = path.join WWWDIR, "images/icon-512.png"
 
     app = express()
 
@@ -67,12 +67,13 @@ exports.main = (options) ->
 
     app.use express.errorHandler(dumpExceptions: true)
 
-    app.get "/",               getIndexHtml IndexHTML
-    app.get "/index.html",     getIndexHtml IndexHTML
-    app.get "/index-dev.html", getIndexHtml IndexDevHTML
+    app.get "/",               getIndexHtml indexHTML
+    app.get "/index.html",     getIndexHtml indexHTML
+    app.get "/index-dev.html", getIndexHtml indexDevHTML
 
-    app.use "/", gzippedStatic  WWWDIR
-    app.use "/", express.static WWWDIR
+    app.use "/gz", GZipify
+    app.use "/",   gzippedStatic  WWWDIR
+    app.use "/",   express.static WWWDIR
 
     log "starting server at http://localhost:#{port}"
 
@@ -100,20 +101,23 @@ gzippedStatic = (wwwDir) ->
         return next() unless match?
 
         response.set "Content-Encoding", "gzip"
-
-        varyHeader = response.get("Vary") || ""
-
-        if "" is varyHeader
-            vary = "Accept-Encoding"
-        else if -1 is vary.indexOf "Accept-Encoding"
-            vary = "#{vary}, Accept-Encoding"
-
-        response.set "Vary", vary if vary?
+        setVary response, "Accept-Encoding"
 
         # rewrite the URL
         request.url = "/gz#{request.url}"
 
         return next()
+
+#-------------------------------------------------------------------------------
+setVary = (response, newToken) ->
+    varyHeader = response.get("Vary") || ""
+
+    if "" is varyHeader
+        vary = "Accept-Encoding"
+    else if -1 is vary.indexOf "Accept-Encoding"
+        vary = "#{vary}, Accept-Encoding"
+
+    response.set "Vary", vary if vary?
 
 #-------------------------------------------------------------------------------
 permanentRedirectWithSlash = (path) ->
@@ -132,6 +136,14 @@ getIndexHtml = (content) ->
 CORSify = (request, response, next) ->
     response.header "Access-Control-Allow-Origin:", "*"
     response.header "Access-Control-Allow-Methods", "GET"
+    next()
+
+#-------------------------------------------------------------------------------
+GZipify = (request, response, next) ->
+    log "sending #{request.path} as gzip'd"
+
+    response.set "Content-Encoding", "gzip"
+    setVary response, "Accept-Encoding"
     next()
 
 #-------------------------------------------------------------------------------

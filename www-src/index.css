@@ -31,6 +31,15 @@ body {
     width:              128px;
     height:             128px;
 }
+
+.gmap-iw-error {
+    color:              red;
+}
+
+.gmap-iw-info {
+    color:              deepSkyBlue;
+}
+
 /*
 #-------------------------------------------------------------------------------
 # Copyright 2013 Patrick Mueller

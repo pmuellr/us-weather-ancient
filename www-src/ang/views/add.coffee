@@ -18,9 +18,9 @@ AngTangle.controller add = ($scope, Logger, GMap) ->
     $scope.$on "$destroy", ->
         $(".map-container").hide()
 
-    GMap.on "marker-moved", (latlng)->
-        GMap.panTo latlng
-
+    $scope.$on "location-selected", (event, data) ->
+        console.log "event: #{event} #{data}"
+        
     return
 
 #-------------------------------------------------------------------------------
