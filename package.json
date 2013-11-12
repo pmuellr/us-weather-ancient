@@ -32,9 +32,12 @@
     },
   "devDependencies":
     {
-      "ang-tangle":       "0.1.x",
-      "browserify":       "2.35.x",
-      "coffee-script":    "1.6.x"
+      "ang-tangle":          "0.1.x",
+      "browserify":          "2.35.x",
+      "coffee-script":       "1.6.x",
+      "grunt":               "0.4.x",
+      "grunt-contrib-watch": "0.5.x",
+      "shelljs":             "0.2.6"
     },
   "homepage":          "https://github.com/pmuellr/us-weather",
   "bugs":              "https://github.com/pmuellr/us-weather/issues",

@@ -198,7 +198,7 @@ getGeocodeResult = (result, status) ->
 
     InfoWindow.setContent iContent.join "\n"
 
-    $rootScope.$broadcast "location-selected", "some data"
+    $rootScope?.$broadcast "location-selected", "some data"
 
 #-------------------------------------------------------------------------------
 checkForGMapsLoaded = ->

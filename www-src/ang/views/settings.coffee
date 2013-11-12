@@ -8,6 +8,10 @@ AngTangle.controller settings = ($scope, Logger) ->
         update:    -> wrapped Logger, "update"
         swapCache: -> wrapped Logger, "swapCache"
         reload:    -> window.location.reload(true)
+        nuclear:   -> 
+            wrapped Logger, "update"
+            setTimeout (-> wrapped Logger, "swapCache"),  5000
+            setTimeout (-> window.location.reload(true)), 7000
     return
 
 #-------------------------------------------------------------------------------
