@@ -21,11 +21,9 @@ grunt = null
 Config =
 
     watch:
-
         Gruntfile:
             files: __basename
             tasks: "gruntfile-changed"
-
         source:
             files: [ "lib-src/**/*", "www-src/**/*" ]
             tasks: "build-n-serve"
@@ -90,7 +88,7 @@ module.exports = (Grunt) ->
     grunt.loadNpmTasks "grunt-contrib-watch"
 
     grunt.registerTask "build", "run a build", ->
-        build()
+        build @
 
     grunt.registerTask "serve", "run the server", ->
         serve()
@@ -117,7 +115,9 @@ module.exports = (Grunt) ->
 
 
 #-------------------------------------------------------------------------------
-build = ->
+build = (task) ->
+    done = task.async()
+
     timeStart = Date.now()
 
     #----------------------------------
@@ -168,7 +168,8 @@ build = ->
 
     wwwFiles = ls "-R", "www"
 
-    gzipped = 0
+    gzipped     = 0
+    gzippedDone = 0
     for file in wwwFiles
         wwwFile = path.join "www", file
         for pattern in Config.gzip
@@ -176,18 +177,24 @@ build = ->
                 gzFile = path.join "www", "gz", file
 
                 mkdir "-p", path.dirname gzFile
-                gzipFile wwwFile, gzFile
+                gzipFile wwwFile, gzFile, -> 
+                    gzippedDone++
 
                 gzipped++
 
-    log "gzip'd #{gzipped} files"
+    log "gzip'ing #{gzipped} files"
 
     cp "www/index.html", "www/index-dev.html"
     sed "-i", /<html manifest="index.appcache"/, '<html class="dev"', "www/index-dev.html"
 
-    timeElapsed = Date.now() - timeStart
-    log "build time: #{timeElapsed/1000} sec"
+    buildDone = ->
+        return unless gzippedDone is gzipped 
 
+        timeElapsed = Date.now() - timeStart
+        log "build time: #{timeElapsed/1000} sec"
+        done()
+
+    setInterval buildDone, 100
     return
 
 #-------------------------------------------------------------------------------
@@ -220,13 +227,15 @@ bower = ->
         log ""
 
 #-------------------------------------------------------------------------------
-gzipFile = (iFile, oFile) ->
+gzipFile = (iFile, oFile, callback) ->
     gzip = zlib.createGzip()
 
     iStream = fs.createReadStream  iFile
     oStream = fs.createWriteStream oFile
 
-    iStream.pipe(gzip).pipe(oStream)
+    piping = iStream.pipe(gzip).pipe(oStream)
+
+    piping.on "finish", callback
 
 #-------------------------------------------------------------------------------
 cleanDir = (dirs...) ->
@@ -264,22 +273,25 @@ createBuiltOn = (oFile) ->
 
 #-------------------------------------------------------------------------------
 serverSpawn = (pidFile, cmd, args, opts={}) ->
-    console.log "serverStart #{pidFile}, #{cmd}, #{args.join " "}"
     opts.stdio = "inherit"
 
     serverProcess = grunt.util.spawn {cmd, args, opts}, ->
 
+    log "starting server process #{serverProcess.pid}"
     serverProcess.pid.toString().to pidFile
 
 #-------------------------------------------------------------------------------
 serverKill = (pidFile) ->
-    return unless test "-f", pidFile
+    unless test "-f", pidFile
+        log "no pidfile, no server to kill"
+        return
 
     pid = cat pidFile
     pid = parseInt pid, 10
     rm pidFile
 
     try
+        log "killing  server process #{pid}"
         process.kill pid
     catch e
 

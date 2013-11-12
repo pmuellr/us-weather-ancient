@@ -12,10 +12,10 @@ installation
 After `git clone`ing this project, you will need to run:
 
 * `npm install`
-* `jbuild build`
+* `grunt build`
 
-So, you'll need to have `jbuild` installed globally, available via `npm`.
-See <https://npmjs.org/package/jbuild> for more information.
+So, you'll need to have `grunt` installed globally, available via `npm`.
+See <http://gruntjs.com/> for more information.
 
 
 
